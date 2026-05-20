@@ -14,43 +14,6 @@ SyntheticTestGenerator is a specification-based tool for automatically generatin
 | API docs    | Swashbuckle / Swagger UI                        |
 | Frontend    | Static HTML/JS (served by the API via wwwroot/) |
 
-## Repository Structure
-
-```
-SyntheticTestGenerator/
-├── backend/                          # Self-contained backend unit
-│   ├── SyntheticTestGenerator.sln    # Solution file (relative project paths)
-│   ├── .gitignore                    # Covers bin/, obj/, .idea/, .vs/, *.user …
-│   ├── Directory.Build.props         # Shared MSBuild: nullable-as-errors, ImplicitUsings
-│   ├── TestGen.Api/                  # ASP.NET Core 8 Web API
-│   │   ├── Controllers/              # API controllers
-│   │   └── Program.cs
-│   ├── TestGen.Core/                 # Pure .NET 8 class library
-│   │   ├── Models/
-│   │   ├── Validation/
-│   │   │   ├── Syntactic/
-│   │   │   ├── Semantic/
-│   │   │   ├── Domain/
-│   │   │   └── Safety/
-│   │   ├── Generation/
-│   │   └── Resources/Profiles/       # JSON profiles — copied to output dir
-│   └── TestGen.Tests/                # xUnit test project
-│       ├── Models/
-│       ├── Validation/ (Syntactic/, Semantic/, Domain/, Safety/)
-│       └── Generation/
-└── frontend/                         # Frontend app (added separately)
-```
-
-> The `backend/` folder is fully self-contained: it carries its own `.sln`, `.gitignore`, and `Directory.Build.props` so it can be built and run independently without touching `frontend/`.
-
-## How to Run the Backend Locally
-
-```bash
-# From the repository root
-cd backend && dotnet run --project TestGen.Api
-```
-
-The API will start and print its listening URL (typically `http://localhost:5000` in production profile or a random port in Development).
 
 ## How to Access
 
@@ -63,4 +26,4 @@ The API will start and print its listening URL (typically `http://localhost:5000
 
 ---
 
-> **Bachelor's thesis project** — Mihail Korb
+> **Bachelor's thesis project** — Jelizaveta Korb
