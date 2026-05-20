@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY . .
-RUN dotnet restore SyntheticTestGenerator.sln
+RUN dotnet restore TestGen.Api/TestGen.Api.csproj
 RUN dotnet publish TestGen.Api/TestGen.Api.csproj -c Release -o /app/publish --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
