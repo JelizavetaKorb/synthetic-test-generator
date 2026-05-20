@@ -1,6 +1,0 @@
-@TestGen.Api_HostAddress = http://localhost:5286
-
-GET {{TestGen.Api_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

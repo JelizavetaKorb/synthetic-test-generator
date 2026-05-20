@@ -1,0 +1,42 @@
+{
+  "profileId": "fault-injection-bus",
+  "name": "Fault Injection — Bus",
+  "description": "Inject faults into the communication bus (CAN, CAN-FD, FlexRay) to verify ECU error handling and recovery. Validates detection time, failsafe activation, and DTC logging.",
+  "defaultParameters": {
+    "initialConditions.ambientTemperatureC": 25,
+    "initialConditions.batteryVoltageV": 13.5,
+    "initialConditions.engineState": "RUNNING",
+    "initialConditions.fuelLevelPercent": 80,
+    "initialConditions.vehicleSpeedMps": 15.0,
+    "initialConditions.gearPosition": "D",
+    "initialConditions.ignitionKey": "ON",
+    "ecuMode": "NORMAL",
+    "ecuPowerState": "ON",
+    "targetExecution": "HIL",
+    "testDurationMs": 10000,
+    "timeResolutionMs": 5,
+    "faults": [
+      {
+        "faultId": "f1",
+        "type": "message_loss",
+        "target": "MSG_ENGINE_STATUS",
+        "startTimeMs": 1000,
+        "durationMs": 3000,
+        "intensity": 1.0,
+        "pattern": "continuous"
+      }
+    ]
+  },
+  "lockedParameters": [
+    "initialConditions.engineState",
+    "initialConditions.ignitionKey",
+    "ecuPowerState"
+  ],
+  "recommendedAssertions": [
+    "ecu_detects_fault_within_100ms",
+    "failsafe_mode_activated",
+    "dtc_logged_for_message_loss",
+    "normal_operation_resumes_after_fault_cleared"
+  ]
+}
+

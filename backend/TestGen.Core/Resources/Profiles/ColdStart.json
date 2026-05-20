@@ -1,0 +1,40 @@
+{
+  "profileId": "cold-start",
+  "name": "Cold Start",
+  "description": "Engine cold-start test: ECU powers up from extended off state in cold ambient conditions. Validates startup sequencing, battery sag tolerance, and warm-up behavior.",
+  "defaultParameters": {
+    "initialConditions.ambientTemperatureC": -10,
+    "initialConditions.batteryVoltageV": 11.8,
+    "initialConditions.engineState": "OFF",
+    "initialConditions.fuelLevelPercent": 50,
+    "initialConditions.vehicleSpeedMps": 0,
+    "initialConditions.gearPosition": "P",
+    "initialConditions.ignitionKey": "OFF",
+    "ecuMode": "NORMAL",
+    "ecuId": "ENGINE-ECU-001",
+    "ecuFirmwareVersion": "2.4.1",
+    "timing.startupTimeoutMs": 3000,
+    "timing.warmupDurationS": 120,
+    "timing.measurementIntervalMs": 100,
+    "bus.protocol": "CAN",
+    "bus.baudRateKbps": 500,
+    "reporting.captureSignals": true,
+    "reporting.captureDtcs": true,
+    "reporting.format": "JSON"
+  },
+  "lockedParameters": [
+    "initialConditions.engineState",
+    "initialConditions.vehicleSpeedMps",
+    "initialConditions.gearPosition",
+    "initialConditions.ignitionKey"
+  ],
+  "recommendedAssertions": [
+    "startupTimeMs < 3000",
+    "batteryVoltageV >= 9.0",
+    "noFaultCodesOnBoot",
+    "engineRpmStable after warmupDurationS",
+    "coolantTempC rising monotonically during warmup",
+    "noCommunicationLoss on CAN during startup"
+  ]
+}
+

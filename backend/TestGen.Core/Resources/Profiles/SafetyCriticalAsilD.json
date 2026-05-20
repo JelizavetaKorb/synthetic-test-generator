@@ -1,0 +1,35 @@
+{
+  "profileId": "safety-critical-asil-d",
+  "name": "Safety Critical — ASIL D",
+  "description": "ASIL D safety-critical test scenario. Validates that the ECU meets the highest automotive safety integrity level requirements including formal assertions, hazard coverage, and failsafe behavior.",
+  "defaultParameters": {
+    "initialConditions.ambientTemperatureC": 20,
+    "initialConditions.batteryVoltageV": 12.6,
+    "initialConditions.engineState": "RUNNING",
+    "initialConditions.fuelLevelPercent": 100,
+    "initialConditions.vehicleSpeedMps": 30.0,
+    "initialConditions.gearPosition": "D",
+    "initialConditions.ignitionKey": "ON",
+    "ecuMode": "NORMAL",
+    "ecuPowerState": "ON",
+    "targetExecution": "HIL",
+    "testDurationMs": 60000,
+    "timeResolutionMs": 1,
+    "asilLevel": "D",
+    "hazardId": "HAZ-001",
+    "safetyGoal": "Prevent unintended acceleration"
+  },
+  "lockedParameters": [
+    "asilLevel",
+    "targetExecution",
+    "initialConditions.ignitionKey",
+    "ecuPowerState"
+  ],
+  "recommendedAssertions": [
+    "no_unintended_acceleration",
+    "failsafe_within_50ms",
+    "dtc_logged_on_safety_violation",
+    "ecu_enters_safe_state_on_fault"
+  ]
+}
+
