@@ -1,21 +1,31 @@
 [
   {
     "ecuId": "ENGINE-ECU-001",
+    "ecuName": "Primary Engine ECU",
     "description": "Primary engine management ECU — controls fuel injection and ignition timing.",
     "minOperationalVoltage": 9.0,
     "maxOperationalVoltage": 16.0
   },
   {
     "ecuId": "BRAKE-ECU-001",
+    "ecuName": "Brake Management ECU",
     "description": "ABS/ESC brake management ECU.",
     "minOperationalVoltage": 9.5,
     "maxOperationalVoltage": 16.0
   },
   {
     "ecuId": "BMS-001",
+    "ecuName": "Battery Management System ECU",
     "description": "Battery Management System ECU for hybrid/EV platforms.",
     "minOperationalVoltage": 8.0,
     "maxOperationalVoltage": 16.5
+  },
+  {
+    "ecuId": "ADAS-ECU-001",
+    "ecuName": "ADAS Control Unit",
+    "description": "Advanced Driver Assistance Systems ECU — handles sensor fusion, object detection, and automated driving functions.",
+    "minOperationalVoltage": 10.0,
+    "maxOperationalVoltage": 16.0
   }
 ]
 

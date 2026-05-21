@@ -23,14 +23,12 @@ public sealed class CartesianScenarioGeneratorTests
     [Fact]
     public void Generate_ProfileNotFound_ReturnsProfileNotFoundError()
     {
-        // Arrange
+
         var sut     = BuildSut(profile: null);
         var request = new GenerateRequest { ProfileId = "missing", Strategy = "cartesian" };
 
-        // Act
         var result = sut.Generate(request);
 
-        // Assert
         result.Scenarios.Should().BeEmpty();
         result.Issues.Should().ContainSingle(i =>
             i.Code == "PROFILE_NOT_FOUND" && i.Severity == "error");
@@ -39,7 +37,7 @@ public sealed class CartesianScenarioGeneratorTests
     [Fact]
     public void Generate_NoSweepsNoOverrides_ReturnsOneScenarioWithDefaults()
     {
-        // Arrange
+
         var profile = new ProfileBuilder()
             .WithId("p")
             .WithDefault("a", 1)
@@ -48,10 +46,8 @@ public sealed class CartesianScenarioGeneratorTests
             .Build();
         var request = new GenerateRequest { ProfileId = "p", Strategy = "cartesian" };
 
-        // Act
         var result = BuildSut(profile).Generate(request);
 
-        // Assert
         result.Scenarios.Should().ContainSingle();
         var s = result.Scenarios[0];
         s.Parameters.Should().ContainKey("a").WhoseValue.Should().Be(1);
@@ -62,7 +58,7 @@ public sealed class CartesianScenarioGeneratorTests
     [Fact]
     public void Generate_OverrideApplied_ScenarioReflectsOverride()
     {
-        // Arrange
+
         var profile = new ProfileBuilder().WithId("p").WithDefault("x", 1).Build();
         var request = new GenerateRequest
         {
@@ -71,10 +67,8 @@ public sealed class CartesianScenarioGeneratorTests
             Overrides = new Dictionary<string, object> { ["x"] = 99 }
         };
 
-        // Act
         var result = BuildSut(profile).Generate(request);
 
-        // Assert
         result.Scenarios.Should().ContainSingle();
         result.Scenarios[0].Parameters["x"].Should().Be(99);
     }
@@ -82,7 +76,7 @@ public sealed class CartesianScenarioGeneratorTests
     [Fact]
     public void Generate_OneSweepLinearRange_CorrectCount()
     {
-        // Arrange — sweep from 0 to 2 step 1 produces values [0, 1, 2]
+
         var profile = new ProfileBuilder().WithId("p").Build();
         var request = new GenerateRequest
         {
@@ -94,17 +88,15 @@ public sealed class CartesianScenarioGeneratorTests
             }
         };
 
-        // Act
         var result = BuildSut(profile).Generate(request);
 
-        // Assert
         result.Scenarios.Should().HaveCount(3);
     }
 
     [Fact]
     public void Generate_TwoSweeps_CartesianProduct()
     {
-        // Arrange — sweep "a"=[1,2], "b"=[10,20,30]; cartesian = 6 combos
+
         var profile = new ProfileBuilder().WithId("p").Build();
         var request = new GenerateRequest
         {
@@ -117,10 +109,8 @@ public sealed class CartesianScenarioGeneratorTests
             }
         };
 
-        // Act
         var result = BuildSut(profile).Generate(request);
 
-        // Assert
         result.Scenarios.Should().HaveCount(6);
         result.Scenarios.Should().Contain(s => D(s,"a") == 1.0 && D(s,"b") == 30.0,
             "spot-check: a=1, b=30 must appear");
@@ -131,7 +121,7 @@ public sealed class CartesianScenarioGeneratorTests
     [Fact]
     public void Generate_InvalidScenarioFilteredByValidator_DroppedFromOutput()
     {
-        // Arrange — sweep speed 0..2; only speed=0 is valid with engineState=OFF
+
         var profile = new ProfileBuilder()
             .WithId("p")
             .WithDefault("initialConditions.engineState",     "OFF")
@@ -149,10 +139,8 @@ public sealed class CartesianScenarioGeneratorTests
         };
         var sut = BuildSut(profile, new SingleRuleValidator(new EngineOffSpeedGtZeroRule()));
 
-        // Act
         var result = sut.Generate(request);
 
-        // Assert
         result.Scenarios.Should().ContainSingle(s => D(s, "initialConditions.vehicleSpeedMps") == 0.0);
         result.Issues.Where(i => i.Code == EngineOffSpeedGtZeroRule.RuleCode)
                      .Should().HaveCount(2, "scenarios with speed=1 and speed=2 must be dropped");

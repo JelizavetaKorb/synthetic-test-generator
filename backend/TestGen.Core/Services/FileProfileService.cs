@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Logging;
 using TestGen.Core.Models;
 
 namespace TestGen.Core.Services;
@@ -14,9 +15,12 @@ public sealed class FileProfileService : IProfileService
     };
 
     private readonly IReadOnlyList<Profile> _profiles;
+    private readonly ILogger<FileProfileService> _logger;
 
-    public FileProfileService()
+    public FileProfileService(ILogger<FileProfileService> logger)
     {
+        _logger = logger;
+
         var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
                           ?? AppContext.BaseDirectory;
         var profilesDir = Path.Combine(assemblyDir, "Resources", "Profiles");
@@ -30,6 +34,11 @@ public sealed class FileProfileService : IProfileService
         var loaded = new List<Profile>();
         foreach (var file in Directory.EnumerateFiles(profilesDir, "*.json"))
         {
+
+            var fileName = Path.GetFileName(file);
+            if (fileName.Equals("EcuCatalog.json", StringComparison.OrdinalIgnoreCase))
+                continue;
+
             try
             {
                 var json = File.ReadAllText(file);
@@ -39,8 +48,7 @@ public sealed class FileProfileService : IProfileService
             }
             catch (Exception ex)
             {
-
-                Console.Error.WriteLine($"[FileProfileService] Failed to load '{file}': {ex.Message}");
+                _logger.LogWarning(ex, "Failed to load profile from '{File}'.", file);
             }
         }
 

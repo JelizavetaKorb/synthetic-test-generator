@@ -3,6 +3,9 @@
   "name": "Safety Critical — ASIL D",
   "description": "ASIL D safety-critical test scenario. Validates that the ECU meets the highest automotive safety integrity level requirements including formal assertions, hazard coverage, and failsafe behavior.",
   "defaultParameters": {
+    "priority": "medium",
+    "version": "1.0",
+
     "initialConditions.ambientTemperatureC": 20,
     "initialConditions.batteryVoltageV": 12.6,
     "initialConditions.engineState": "RUNNING",
@@ -10,20 +13,87 @@
     "initialConditions.vehicleSpeedMps": 30.0,
     "initialConditions.gearPosition": "D",
     "initialConditions.ignitionKey": "ON",
+    "initialConditions.ambientHumidityPct": 50,
+    "initialConditions.gpsFixQuality": "GOOD",
+    "initialConditions.localizationErrorM": 0.1,
+
+    "ecuId": "ADAS-ECU-001",
     "ecuMode": "NORMAL",
+    "ecuTemperatureC": 25,
     "ecuPowerState": "ON",
+    "hwInterface": ["CAN-FD", "Ethernet"],
+    "diagnosticSession": "NONE",
+
     "targetExecution": "HIL",
     "testDurationMs": 60000,
     "timeResolutionMs": 1,
+
     "asilLevel": "D",
     "hazardId": "HAZ-001",
-    "safetyGoal": "Prevent unintended acceleration"
+    "safetyGoal": "Prevent unintended acceleration",
+    "safety.riskWeight": 0.95,
+    "safety.recoveryBehaviourExpected": true,
+
+    "assertions[0].id": "A1",
+    "assertions[0].type": "STL",
+    "assertions[0].expr": "G[0,50](abs(acceleration) < 3.0)",
+    "assertions[0].severity": "critical",
+    "assertions[0].timeWindowMs.from": 0,
+    "assertions[0].timeWindowMs.to": 60000,
+    "assertions[1].id": "A2",
+    "assertions[1].type": "boolean",
+    "assertions[1].expr": "no_unintended_acceleration",
+    "assertions[1].severity": "critical",
+
+    "bus.busName": "ADASCAN",
+    "bus.busType": "CAN-FD",
+    "bus.bitrateKbps": 2000,
+    "bus.busLoadPct": 40,
+    "bus.messageJitterMs": 1,
+
+    "signalList": [
+      {
+        "name": "radar_distance",
+        "type": "analog",
+        "protocolId": "0x300",
+        "unit": "m",
+        "min": 0,
+        "max": 200,
+        "initial": 100,
+        "behavior": "static"
+      },
+      {
+        "name": "brake_pressure",
+        "type": "analog",
+        "protocolId": "0x301",
+        "unit": "bar",
+        "min": 0,
+        "max": 200,
+        "initial": 0,
+        "behavior": "static"
+      }
+    ],
+
+    "timing.repetitions": 1,
+    "timing.interTestDelayMs": 1000,
+
+    "reporting.captureSignals": true,
+    "reporting.captureDtcs": true,
+    "reporting.format": "JSON",
+    "reporting.logLevel": "INFO",
+    "reporting.telemetryFrequencyHz": 10,
+    "reporting.traceCapture": false,
+    "reporting.saveArtifacts": true,
+
+    "execution.targetRunner": "HIL_bench",
+    "execution.timeoutMs": 120000
   },
   "lockedParameters": [
     "asilLevel",
     "targetExecution",
     "initialConditions.ignitionKey",
-    "ecuPowerState"
+    "ecuPowerState",
+    "safety.riskWeight"
   ],
   "recommendedAssertions": [
     "no_unintended_acceleration",

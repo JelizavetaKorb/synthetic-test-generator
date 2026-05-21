@@ -41,13 +41,11 @@ public sealed class PairwiseScenarioGeneratorTests
     [Fact]
     public void Generate_NoSweeps_ReturnsOneScenario()
     {
-        // Arrange
+
         var profile = new ProfileBuilder().WithId("p").Build();
 
-        // Act
         var result = BuildSut(profile).Generate(RequestFor());
 
-        // Assert
         result.Scenarios.Should().ContainSingle();
         result.Issues.Should().BeEmpty();
     }
@@ -55,7 +53,7 @@ public sealed class PairwiseScenarioGeneratorTests
     [Fact]
     public void Generate_SingleSweep_SameAsCartesian()
     {
-        // Arrange — one sweep with 4 values; pairwise == cartesian for a single axis
+
         var profile = new ProfileBuilder().WithId("p").Build();
         var request = RequestFor();
         request.SweepParameters = new Dictionary<string, SweepSpec>
@@ -63,23 +61,19 @@ public sealed class PairwiseScenarioGeneratorTests
             ["x"] = new SweepSpec { Type = "linear_range", From = 1, To = 4, Step = 1 }
         };
 
-        // Act
         var result = BuildSut(profile).Generate(request);
 
-        // Assert
         result.Scenarios.Should().HaveCount(4);
     }
 
     [Fact]
     public void Generate_ThreeSweeps_FewerThanCartesian()
     {
-        // Arrange — 3×3×3 = 27 cartesian scenarios; pairwise must need fewer
+
         var profile = new ProfileBuilder().WithId("p").Build();
 
-        // Act
         var result = BuildSut(profile).Generate(ThreeSweepRequest());
 
-        // Assert
         result.Scenarios.Count.Should().BeLessThan(27,
             "pairwise should need fewer than 3×3×3=27 cartesian scenarios");
     }
@@ -87,13 +81,11 @@ public sealed class PairwiseScenarioGeneratorTests
     [Fact]
     public void Generate_ThreeSweeps_AllPairsCovered()
     {
-        // Arrange — every (value_i, value_j) pair across all axis combinations must appear
+
         var profile = new ProfileBuilder().WithId("p").Build();
 
-        // Act
         var result = BuildSut(profile).Generate(ThreeSweepRequest());
 
-        // Assert
         double[] v  = [1, 2, 3];
         var      ss = result.Scenarios;
         foreach (var a in v)
@@ -108,15 +100,13 @@ public sealed class PairwiseScenarioGeneratorTests
     [Fact]
     public void Generate_Deterministic_SameInputSameOutput()
     {
-        // Arrange
+
         var profile = new ProfileBuilder().WithId("p").Build();
         var sut     = BuildSut(profile);
 
-        // Act
         var r1 = sut.Generate(ThreeSweepRequest());
         var r2 = sut.Generate(ThreeSweepRequest());
 
-        // Assert
         r1.Scenarios.Count.Should().Be(r2.Scenarios.Count);
         for (var i = 0; i < r1.Scenarios.Count; i++)
             foreach (var k in r1.Scenarios[i].Parameters.Keys)

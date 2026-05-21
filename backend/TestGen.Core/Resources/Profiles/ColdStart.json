@@ -3,6 +3,9 @@
   "name": "Cold Start",
   "description": "Engine cold-start test: ECU powers up from extended off state in cold ambient conditions. Validates startup sequencing, battery sag tolerance, and warm-up behavior.",
   "defaultParameters": {
+    "priority": "medium",
+    "version": "1.0",
+
     "initialConditions.ambientTemperatureC": -10,
     "initialConditions.batteryVoltageV": 11.8,
     "initialConditions.engineState": "OFF",
@@ -10,23 +13,72 @@
     "initialConditions.vehicleSpeedMps": 0,
     "initialConditions.gearPosition": "P",
     "initialConditions.ignitionKey": "OFF",
-    "ecuMode": "NORMAL",
+    "initialConditions.ambientHumidityPct": 50,
+    "initialConditions.gpsFixQuality": "GOOD",
+    "initialConditions.localizationErrorM": 0.1,
+
     "ecuId": "ENGINE-ECU-001",
+    "ecuMode": "NORMAL",
+    "ecuTemperatureC": -10,
     "ecuFirmwareVersion": "2.4.1",
+    "ecuPowerState": "OFF",
+    "hwInterface": ["CAN"],
+    "diagnosticSession": "NONE",
+
+    "targetExecution": "simulation",
+
+    "bus.protocol": "CAN",
+    "bus.baudRateKbps": 500,
+    "bus.busName": "PowertrainCAN",
+    "bus.busLoadPct": 10,
+    "bus.messageJitterMs": 0,
+
+    "signalList": [
+      {
+        "name": "engine_rpm",
+        "type": "analog",
+        "protocolId": "0x100",
+        "unit": "rpm",
+        "min": 0,
+        "max": 8000,
+        "initial": 0,
+        "behavior": "static"
+      },
+      {
+        "name": "coolant_temp",
+        "type": "analog",
+        "protocolId": "0x101",
+        "unit": "C",
+        "min": -40,
+        "max": 150,
+        "initial": -10,
+        "behavior": "ramp"
+      }
+    ],
+
     "timing.startupTimeoutMs": 3000,
     "timing.warmupDurationS": 120,
     "timing.measurementIntervalMs": 100,
-    "bus.protocol": "CAN",
-    "bus.baudRateKbps": 500,
+    "timing.repetitions": 1,
+    "timing.interTestDelayMs": 1000,
+
     "reporting.captureSignals": true,
     "reporting.captureDtcs": true,
-    "reporting.format": "JSON"
+    "reporting.format": "JSON",
+    "reporting.logLevel": "INFO",
+    "reporting.telemetryFrequencyHz": 10,
+    "reporting.traceCapture": false,
+    "reporting.saveArtifacts": true,
+
+    "execution.targetRunner": "SIL_runner",
+    "execution.timeoutMs": 120000
   },
   "lockedParameters": [
     "initialConditions.engineState",
     "initialConditions.vehicleSpeedMps",
     "initialConditions.gearPosition",
-    "initialConditions.ignitionKey"
+    "initialConditions.ignitionKey",
+    "ecuPowerState"
   ],
   "recommendedAssertions": [
     "startupTimeMs < 3000",
@@ -37,4 +89,3 @@
     "noCommunicationLoss on CAN during startup"
   ]
 }
-

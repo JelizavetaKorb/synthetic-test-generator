@@ -19,10 +19,10 @@ public sealed class LockedParameterOverriddenRule : IValidationRule
             if (!string.Equals(defaultVal, scenarioVal, StringComparison.OrdinalIgnoreCase))
                 yield return new ValidationIssue
                 {
-                    Severity = "warning",
+                    Severity = "error",
                     Code     = RuleCode,
                     Field    = key,
-                    Message  = $"Parameter '{key}' is locked by profile '{profile.ProfileId}' " +
+                    Message  = $"Parameter '{key}' is locked by profile '{profile.Name}' " +
                                "and cannot be overridden."
                 };
         }

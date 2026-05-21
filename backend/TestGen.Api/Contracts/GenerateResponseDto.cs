@@ -1,3 +1,4 @@
+using System.Text.Json;
 using TestGen.Core.Models;
 
 namespace TestGen.Api.Contracts;
@@ -37,6 +38,7 @@ public sealed class ValidationIssueDto
 public sealed class GenerateResponseDto
 {
     public int GeneratedCount { get; set; }
-    public ScenarioDto[] Scenarios { get; set; } = Array.Empty<ScenarioDto>();
+
+    public JsonElement[] Scenarios { get; set; } = Array.Empty<JsonElement>();
     public ValidationIssueDto[] Issues { get; set; } = Array.Empty<ValidationIssueDto>();
 }

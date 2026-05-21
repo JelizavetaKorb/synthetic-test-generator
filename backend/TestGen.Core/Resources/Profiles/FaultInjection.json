@@ -3,6 +3,9 @@
   "name": "Fault Injection — Bus",
   "description": "Inject faults into the communication bus (CAN, CAN-FD, FlexRay) to verify ECU error handling and recovery. Validates detection time, failsafe activation, and DTC logging.",
   "defaultParameters": {
+    "priority": "medium",
+    "version": "1.0",
+
     "initialConditions.ambientTemperatureC": 25,
     "initialConditions.batteryVoltageV": 13.5,
     "initialConditions.engineState": "RUNNING",
@@ -10,11 +13,50 @@
     "initialConditions.vehicleSpeedMps": 15.0,
     "initialConditions.gearPosition": "D",
     "initialConditions.ignitionKey": "ON",
+    "initialConditions.ambientHumidityPct": 50,
+    "initialConditions.gpsFixQuality": "GOOD",
+    "initialConditions.localizationErrorM": 0.1,
+
+    "ecuId": "BRAKE-ECU-001",
     "ecuMode": "NORMAL",
+    "ecuTemperatureC": 25,
     "ecuPowerState": "ON",
+    "hwInterface": ["CAN", "CAN-FD"],
+    "diagnosticSession": "NONE",
+
     "targetExecution": "HIL",
     "testDurationMs": 10000,
     "timeResolutionMs": 5,
+
+    "bus.busName": "ChassisCAN",
+    "bus.busType": "CAN",
+    "bus.bitrateKbps": 500,
+    "bus.busLoadPct": 25,
+    "bus.messageJitterMs": 2,
+
+    "signalList": [
+      {
+        "name": "engine_status",
+        "type": "digital",
+        "protocolId": "0x200",
+        "unit": "",
+        "min": 0,
+        "max": 1,
+        "initial": 1,
+        "behavior": "static"
+      },
+      {
+        "name": "vehicle_speed",
+        "type": "analog",
+        "protocolId": "0x201",
+        "unit": "mps",
+        "min": 0,
+        "max": 70,
+        "initial": 15,
+        "behavior": "static"
+      }
+    ],
+
     "faults": [
       {
         "faultId": "f1",
@@ -23,9 +65,26 @@
         "startTimeMs": 1000,
         "durationMs": 3000,
         "intensity": 1.0,
-        "pattern": "continuous"
+        "pattern": "continuous",
+        "repeat": 0
       }
-    ]
+    ],
+
+    "environmentalPerturbations.emiLevel": "none",
+
+    "timing.repetitions": 1,
+    "timing.interTestDelayMs": 1000,
+
+    "reporting.captureSignals": true,
+    "reporting.captureDtcs": true,
+    "reporting.format": "JSON",
+    "reporting.logLevel": "INFO",
+    "reporting.telemetryFrequencyHz": 10,
+    "reporting.traceCapture": false,
+    "reporting.saveArtifacts": true,
+
+    "execution.targetRunner": "HIL_bench",
+    "execution.timeoutMs": 120000
   },
   "lockedParameters": [
     "initialConditions.engineState",
@@ -39,4 +98,3 @@
     "normal_operation_resumes_after_fault_cleared"
   ]
 }
-

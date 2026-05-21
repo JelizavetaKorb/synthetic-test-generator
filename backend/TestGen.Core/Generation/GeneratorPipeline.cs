@@ -68,8 +68,53 @@ public sealed class GeneratorPipeline
                         });
                         continue;
                     }
-
                     sweeps.Add((key, LinearRange(spec.From.Value, spec.To.Value, spec.Step.Value)));
+                }
+                else if (spec.Type.Equals("fixed", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (spec.Values is { Length: > 0 })
+                        sweeps.Add((key, new object[] { spec.Values[0] }));
+                    else if (spec.From is not null)
+                        sweeps.Add((key, new object[] { spec.From.Value }));
+                    else
+                        issues.Add(new ValidationIssue { Severity = "error", Code = "INVALID_SWEEP_SPEC", Field = key, Message = $"Sweep '{key}': fixed requires 'values' or 'from'." });
+                }
+                else if (spec.Type.Equals("enum_list", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (spec.Values is null || spec.Values.Length == 0)
+                    {
+                        issues.Add(new ValidationIssue { Severity = "error", Code = "INVALID_SWEEP_SPEC", Field = key, Message = $"Sweep '{key}': enum_list requires a non-empty 'values' array." });
+                        continue;
+                    }
+                    sweeps.Add((key, spec.Values));
+                }
+                else if (spec.Type.Equals("random_uniform", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (spec.From is null || spec.To is null)
+                    {
+                        issues.Add(new ValidationIssue { Severity = "error", Code = "INVALID_SWEEP_SPEC", Field = key, Message = $"Sweep '{key}': random_uniform requires 'from' and 'to'." });
+                        continue;
+                    }
+                    var count  = spec.Count ?? 5;
+                    var random = new Random(42);
+                    var vals   = new object[count];
+                    for (var i = 0; i < count; i++)
+                        vals[i] = Math.Round(spec.From.Value + random.NextDouble() * (spec.To.Value - spec.From.Value), 6);
+                    sweeps.Add((key, vals));
+                }
+                else if (spec.Type.Equals("geometric_range", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (spec.From is null || spec.To is null || spec.Step is null)
+                    {
+                        issues.Add(new ValidationIssue { Severity = "error", Code = "INVALID_SWEEP_SPEC", Field = key, Message = $"Sweep '{key}': geometric_range requires 'from', 'to', and 'step' (ratio)." });
+                        continue;
+                    }
+                    if (spec.From.Value <= 0 || spec.Step.Value <= 1)
+                    {
+                        issues.Add(new ValidationIssue { Severity = "error", Code = "INVALID_SWEEP_SPEC", Field = key, Message = $"Sweep '{key}': geometric_range requires 'from' > 0 and 'step' > 1." });
+                        continue;
+                    }
+                    sweeps.Add((key, GeometricRange(spec.From.Value, spec.To.Value, spec.Step.Value)));
                 }
                 else
                 {
@@ -78,7 +123,7 @@ public sealed class GeneratorPipeline
                         Severity = "error",
                         Code     = "UNSUPPORTED_SWEEP_TYPE",
                         Field    = key,
-                        Message  = $"Sweep type '{spec.Type}' is not supported yet."
+                        Message  = $"Sweep type '{spec.Type}' is not supported. Supported types: fixed, linear_range, geometric_range, enum_list, random_uniform."
                     });
                 }
             }
@@ -134,7 +179,7 @@ public sealed class GeneratorPipeline
         return new GenerateResult { Scenarios = scenarios, Issues = allIssues };
     }
 
-    internal static object[] LinearRange(double from, double to, double step)
+    public static object[] LinearRange(double from, double to, double step)
     {
         var values = new List<object>();
         var v      = from;
@@ -142,6 +187,18 @@ public sealed class GeneratorPipeline
         {
             values.Add(Math.Round(v, 6));
             v += step;
+        }
+        return values.ToArray();
+    }
+
+    public static object[] GeometricRange(double from, double to, double step)
+    {
+        var values = new List<object>();
+        var v      = from;
+        while (v <= to + 1e-9)
+        {
+            values.Add(Math.Round(v, 6));
+            v *= step;
         }
         return values.ToArray();
     }

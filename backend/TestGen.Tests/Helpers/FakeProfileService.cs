@@ -15,4 +15,3 @@ internal sealed class FakeProfileService : IProfileService
         _profiles.FirstOrDefault(p =>
             p.ProfileId.Equals(profileId, StringComparison.OrdinalIgnoreCase));
 }
-

@@ -22,6 +22,28 @@ public sealed class CartesianScenarioGenerator : IGenerationService
         if (inputs.HasErrors || inputs.Profile is null)
             return new GenerateResult { Issues = inputs.Issues };
 
+        if (inputs.Sweeps.Count > 0)
+        {
+            long productSize = 1;
+            foreach (var (_, vals) in inputs.Sweeps)
+                productSize *= vals.Length;
+
+            if (productSize > request.MaxScenarios)
+                return new GenerateResult
+                {
+                    Issues = new[]
+                    {
+                        new Models.ValidationIssue
+                        {
+                            Severity = "error",
+                            Code     = "CARTESIAN_EXPLOSION",
+                            Field    = "sweepParameters",
+                            Message  = $"Cartesian product would generate {productSize} scenarios, exceeding the limit of {request.MaxScenarios}. Consider using 'pairwise' strategy to reduce the count."
+                        }
+                    }
+                };
+        }
+
         var combinations = CartesianProduct(inputs.Sweeps);
         var result       = _pipeline.MaterializeAndFilter(inputs.Profile, inputs.BaseParameters, combinations);
 

@@ -23,4 +23,3 @@ internal sealed class ProfileBuilder
         RecommendedAssertions = _assertions.ToArray()
     };
 }
-

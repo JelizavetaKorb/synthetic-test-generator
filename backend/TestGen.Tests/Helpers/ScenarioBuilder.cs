@@ -18,4 +18,3 @@ internal sealed class ScenarioBuilder
         Parameters = new Dictionary<string, object>(_parameters)
     };
 }
-

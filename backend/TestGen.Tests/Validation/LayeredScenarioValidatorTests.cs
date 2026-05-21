@@ -16,14 +16,12 @@ public sealed class LayeredScenarioValidatorTests
     [Fact]
     public void Validate_NoRules_ReturnsValid()
     {
-        // Arrange
+
         var validator = Build();
         var scenario  = new ScenarioBuilder().Build();
 
-        // Act
         var result = validator.Validate(scenario, AnyProfile);
 
-        // Assert
         result.IsValid.Should().BeTrue();
         result.Issues.Should().BeEmpty();
     }
@@ -31,14 +29,12 @@ public sealed class LayeredScenarioValidatorTests
     [Fact]
     public void Validate_OneErrorRule_ReturnsInvalid()
     {
-        // Arrange
+
         var validator = Build(new FixedIssueRule("ERR", "error"));
         var scenario  = new ScenarioBuilder().Build();
 
-        // Act
         var result = validator.Validate(scenario, AnyProfile);
 
-        // Assert
         result.IsValid.Should().BeFalse();
         result.Issues.Should().ContainSingle(i => i.Severity == "error" && i.Code == "ERR");
     }
@@ -46,14 +42,12 @@ public sealed class LayeredScenarioValidatorTests
     [Fact]
     public void Validate_WarningOnly_ReturnsValidWithWarning()
     {
-        // Arrange
+
         var validator = Build(new FixedIssueRule("WARN", "warning"));
         var scenario  = new ScenarioBuilder().Build();
 
-        // Act
         var result = validator.Validate(scenario, AnyProfile);
 
-        // Assert
         result.IsValid.Should().BeTrue();
         result.Issues.Should().ContainSingle(i => i.Severity == "warning" && i.Code == "WARN");
     }
@@ -61,14 +55,12 @@ public sealed class LayeredScenarioValidatorTests
     [Fact]
     public void Validate_MultipleRules_AllIssuesCollected()
     {
-        // Arrange — two rules, each firing one issue; validator must not short-circuit
+
         var validator = Build(new FixedIssueRule("W1", "warning"), new FixedIssueRule("E1", "error"));
         var scenario  = new ScenarioBuilder().Build();
 
-        // Act
         var result = validator.Validate(scenario, AnyProfile);
 
-        // Assert
         result.IsValid.Should().BeFalse();
         result.Issues.Should().HaveCount(2);
         result.Issues[0].Code.Should().Be("W1");
