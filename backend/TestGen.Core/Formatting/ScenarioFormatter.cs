@@ -167,7 +167,11 @@ public sealed class ScenarioFormatter : IScenarioFormatter
         foreach (var kvp in p)
         {
             if (!kvp.Key.StartsWith("execution.", StringComparison.Ordinal)) continue;
-            var outKey = Remap(kvp.Key);
+            // Strip the "execution." prefix so the leaf key (e.g. targetRunner)
+            // can be remapped to its bare snake_case form (target_runner) and
+            // not be emitted as "execution.target_runner" inside the object.
+            var leaf   = kvp.Key.Substring("execution.".Length);
+            var outKey = Remap("execution." + leaf, fallback: CamelToSnake(leaf));
             execution[outKey] = ToJsonNode(kvp.Value);
         }
         if (execution.Count > 0) root["execution"] = execution;
@@ -176,8 +180,27 @@ public sealed class ScenarioFormatter : IScenarioFormatter
         foreach (var kvp in p)
         {
             if (!kvp.Key.StartsWith("advanced.", StringComparison.Ordinal)) continue;
-            var outKey = Remap(kvp.Key);
+            var leaf   = kvp.Key.Substring("advanced.".Length);
+            var outKey = Remap("advanced." + leaf, fallback: CamelToSnake(leaf));
             advanced[outKey] = ToJsonNode(kvp.Value);
+        }
+        // The schema places constraint_expressions under "advanced"; if the
+        // frontend sends it at the root, fold it in here.
+        if (p.TryGetValue("constraintExpressions", out var rootCe))
+        {
+            var node = ToJsonNode(rootCe);
+            if (node is JsonArray arr)
+            {
+                var cleaned = new JsonArray();
+                foreach (var item in arr)
+                {
+                    if (item is JsonValue jv && jv.TryGetValue<string>(out var s)
+                        && string.IsNullOrWhiteSpace(s))
+                        continue;
+                    cleaned.Add(item is null ? null : JsonNode.Parse(item.ToJsonString()));
+                }
+                if (cleaned.Count > 0) advanced["constraint_expressions"] = cleaned;
+            }
         }
         if (advanced.Count > 0) root["advanced"] = advanced;
 
@@ -235,10 +258,31 @@ public sealed class ScenarioFormatter : IScenarioFormatter
         handledKeys.Add("signalList");
         handledKeys.Add("sequenceScript");
         handledKeys.Add("sweepParameters");
+        // Already consumed above (folded into advanced.constraint_expressions).
+        handledKeys.Add("constraintExpressions");
+        // Keys the frontend may emit that are not part of the professor's
+        // JSON schema (additionalProperties: false). Drop them silently so
+        // the output validates.
+        var droppedRootKeys = new HashSet<string>(StringComparer.Ordinal)
+        {
+            "testType",
+            "faultsEnabled",
+            "unitTestParams",
+            "stressEnduranceParams",
+            "integrationTestParams",
+            "regressionSweepParams",
+            "faultInjectionParams",
+            "safetyScenarioParams",
+            "securityCyberattackParams",
+            "ecuCatalogEntry",
+            "recommendedAssertions",
+            "profile"
+        };
 
         foreach (var kvp in p)
         {
             if (handledKeys.Contains(kvp.Key)) continue;
+            if (droppedRootKeys.Contains(kvp.Key)) continue;
             if (handledPrefixes.Any(prefix => kvp.Key.StartsWith(prefix, StringComparison.Ordinal)))
                 continue;
 
@@ -251,6 +295,10 @@ public sealed class ScenarioFormatter : IScenarioFormatter
                 var section = CamelToSnake(kvp.Key[..dot]);
                 var field   = Remap(kvp.Key[..dot] + "." + kvp.Key[(dot + 1)..],
                                     fallback: CamelToSnake(kvp.Key[(dot + 1)..]));
+                // The professor's schema spells this key with an uppercase
+                // "EMI_" prefix; honour that exactly.
+                if (section == "environmental_perturbations" && field == "emi_level")
+                    field = "EMI_level";
                 if (root[section] is not JsonObject existing)
                 {
                     existing = new JsonObject();
