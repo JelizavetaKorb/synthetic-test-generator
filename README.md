@@ -25,25 +25,4 @@ backend/
   TestGen.Tests/  Unit + schema compliance tests
 ```
 
-## Running locally
-
-```bash
-# Backend (port 5000)
-cd backend && dotnet run --project TestGen.Api
-
-# Frontend — open frontend/index.html directly in a browser,
-# or serve it with any static server:
-cd frontend && npx serve .
-```
-
-Set `VITE_API_BASE` (or edit `frontend/env.js`) to point at the local backend if needed.
-
-## Tests
-
-```bash
-cd backend && dotnet test
-```
-
----
-
 > Bachelor's thesis project — Jelizaveta Korb
