@@ -1,4 +1,5 @@
 import { createElement } from '../utils/dom.js';
+import { labelFor } from '../utils/field-labels.js';
 
 export function render(container) {
   const panel = createElement('div', { id: 'issues-panel', class: 'issues-panel hidden' });
@@ -8,34 +9,120 @@ export function render(container) {
 export function clearIssues() {
   const panel = document.getElementById('issues-panel');
   if (panel) { panel.innerHTML = ''; panel.classList.add('hidden'); }
+  clearFieldErrors();
 }
 
-export function showIssues(issues) {
+export function clearFieldErrors() {
+  document.querySelectorAll('.inline-field-error').forEach(el => el.remove());
+  document.querySelectorAll('.field-has-error').forEach(el => el.classList.remove('field-has-error'));
+}
+
+let currentInlineIssues = [];
+
+function injectFieldErrors(issues) {
+  document.querySelectorAll('.inline-field-error').forEach(el => el.remove());
+  document.querySelectorAll('.field-has-error').forEach(el => el.classList.remove('field-has-error'));
+  issues.forEach(issue => {
+    if (!issue.field) return;
+    const target = document.querySelector(`[data-field="${CSS.escape(issue.field)}"]`);
+    if (!target) return;
+    target.classList.add('field-has-error');
+    const span = document.createElement('span');
+    span.className = `inline-field-error inline-field-error--${issue.severity || 'error'}`;
+    span.textContent = issue.message;
+    span.title = `${issue.severity || 'error'}${issue.code ? ' [' + issue.code + ']' : ''}`;
+    target.parentNode.insertBefore(span, target.nextSibling);
+  });
+}
+
+function setupInlineErrorPersistence() {
+  if (window.__inlineErrorRerenderHooked) return;
+  window.__inlineErrorRerenderHooked = true;
+  document.addEventListener('rerender-editor', () => {
+    if (currentInlineIssues.length) {
+      requestAnimationFrame(() => injectFieldErrors(currentInlineIssues));
+    }
+  });
+}
+
+export function showIssues(issues, options = {}) {
   const panel = document.getElementById('issues-panel');
   if (!panel) return;
   panel.innerHTML = '';
   panel.classList.remove('hidden');
-  const hasErrors = issues.some(i => i.severity === 'error');
-  panel.appendChild(createElement('h3', { class: 'issues-heading' }, [
-    hasErrors ? 'Please fix these issues before generating' : 'Warnings'
-  ]));
-  issues.forEach(issue => {
-    const row = createElement('div', { class: `issue-row issue-${issue.severity || 'error'}` });
-    row.appendChild(createElement('span', { class: 'issue-badge' }, [issue.severity || 'error']));
-    row.appendChild(createElement('span', { class: 'issue-message' }, [
-      issue.field ? `${issue.field}: ${issue.message}` : issue.message
-    ]));
-    if (issue.field) {
-      row.style.cursor = 'pointer';
-      row.addEventListener('click', () => {
-        const el = document.querySelector(`[data-field="${issue.field}"]`);
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          el.classList.add('field-highlight');
-          setTimeout(() => el.classList.remove('field-highlight'), 1500);
-        }
-      });
+  currentInlineIssues = issues;
+  setupInlineErrorPersistence();
+  injectFieldErrors(issues);
+  const errors = issues.filter(i => i.severity === 'error');
+  const warnings = issues.filter(i => i.severity === 'warning');
+  const info = issues.filter(i => i.severity !== 'error' && i.severity !== 'warning');
+
+  if (errors.length) {
+    panel.appendChild(createElement('h3', { class: 'issues-heading issues-heading--error' }, ['Fix these errors before generating']));
+    errors.forEach(issue => panel.appendChild(buildIssueRow(issue, options)));
+  }
+  if (warnings.length) {
+    panel.appendChild(createElement('h3', { class: 'issues-heading issues-heading--warning' }, ['Warnings']));
+    warnings.forEach(issue => panel.appendChild(buildIssueRow(issue, options)));
+    if (options.onRetry && !errors.length) {
+      const overrideBar = createElement('div', { class: 'issues-actions' });
+      const overrideBtn = createElement('button', { class: 'btn' }, ['Generate anyway (override warnings)']);
+      overrideBtn.addEventListener('click', () => options.onRetry());
+      overrideBar.appendChild(overrideBtn);
+      panel.appendChild(overrideBar);
     }
-    panel.appendChild(row);
+  }
+  if (info.length) {
+    info.forEach(issue => panel.appendChild(buildIssueRow(issue, options)));
+  }
+}
+
+function buildIssueRow(issue, options) {
+  const severity = issue.severity || 'error';
+  const row = createElement('div', { class: `issue-row issue-${severity}` });
+  const badge = createElement('span', { class: 'issue-badge' }, [severity]);
+  row.appendChild(badge);
+  const friendlyField = issue.field ? labelFor(issue.field) : '';
+  const text = friendlyField ? `${friendlyField}: ${issue.message}` : issue.message;
+  row.appendChild(createElement('span', { class: 'issue-message' }, [text]));
+  if (issue.code) {
+    const codeBadge = createElement('span', { class: 'issue-code', title: 'Error code' }, [issue.code]);
+    row.appendChild(codeBadge);
+  }
+
+  const dismissibleBtn = createElement('button', { class: 'btn btn-small issue-dismiss' }, ['Dismiss']);
+  dismissibleBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    row.remove();
   });
+
+  if (issue.suggestedFix && options.onApplyFix) {
+    const fixes = Array.isArray(issue.suggestedFix) ? issue.suggestedFix : [issue.suggestedFix];
+    fixes.forEach(fix => {
+      const label = (fix && fix.label) ? fix.label : 'Apply fix';
+      const fixBtn = createElement('button', { class: 'btn btn-small btn-fix' }, [label]);
+      fixBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        options.onApplyFix(fix);
+        document.dispatchEvent(new CustomEvent('rerender-editor'));
+        row.remove();
+      });
+      row.appendChild(fixBtn);
+    });
+  }
+
+  if (severity === 'warning') row.appendChild(dismissibleBtn);
+
+  if (issue.field) {
+    row.style.cursor = 'pointer';
+    row.addEventListener('click', () => {
+      const el = document.querySelector(`[data-field="${CSS.escape(issue.field)}"]`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.add('field-highlight');
+        setTimeout(() => el.classList.remove('field-highlight'), 1500);
+      }
+    });
+  }
+  return row;
 }

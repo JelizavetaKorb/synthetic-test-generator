@@ -7,7 +7,31 @@ const FALLBACK_MODES = ['NORMAL', 'DIAGNOSTIC', 'SAFE', 'CALIBRATION'];
 
 export function render(container) {
   const block = createCollapsibleBlock('B. ECU Selection & HW Config', 'block-b', content => {
-    content.appendChild(createField({ label: 'ECU ID', path: 'ecu_id', type: 'text', defaultValue: '' }));
+    // ECU ID is normally driven by the header dropdown. If the catalog API
+    // is unavailable (e.g. backend not redeployed), fall back to manual entry
+    // so the user is not locked out.
+    const catalogDown = !!getState('ecu_catalog_unavailable');
+    const ecuWrapper = document.createElement('div');
+    ecuWrapper.className = 'field-wrapper';
+    const ecuLbl = document.createElement('label');
+    ecuLbl.textContent = 'ECU ID *';
+    const ecuInput = document.createElement('input');
+    ecuInput.type = 'text';
+    ecuInput.setAttribute('data-field', 'ecu_id');
+    ecuInput.value = getState('ecu_id') || '';
+    if (catalogDown) {
+      ecuInput.placeholder = 'Catalog unavailable — type the ECU ID manually';
+      ecuInput.title = 'ECU catalog API is offline; enter the ID by hand';
+      ecuInput.addEventListener('input', () => setState('ecu_id', ecuInput.value));
+    } else {
+      ecuInput.readOnly = true;
+      ecuInput.placeholder = 'Select an ECU in the header above';
+      ecuInput.title = 'Selected in the header ECU dropdown';
+    }
+    ecuWrapper.appendChild(ecuLbl);
+    ecuWrapper.appendChild(ecuInput);
+    content.appendChild(ecuWrapper);
+
     content.appendChild(createField({ label: 'Firmware Version', path: 'ecu_firmware_version', type: 'text', defaultValue: '' }));
 
     const modeWrapper = document.createElement('div');

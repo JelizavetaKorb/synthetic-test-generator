@@ -2,7 +2,7 @@ import { STATE_TO_BACKEND } from './utils/profile-map.js';
 
 function createDefaultState() {
   return {
-    scenario_id: null,
+    scenario_id: crypto.randomUUID(),
     name: "",
     description: "",
     author: "",
@@ -14,8 +14,11 @@ function createDefaultState() {
     target_execution: "simulation",
     export_formats: [],
     profile: null,
+    test_type: "",
+    recommended_assertions: [],
     initial_conditions: {
       ambient_temperature_C: 20,
+      ambient_temperature_sweep: null,
       battery_voltage_V: 12.6,
       engine_state: "IDLE",
       fuel_level_percent: 100,
@@ -40,10 +43,11 @@ function createDefaultState() {
       bus_name: "",
       bus_type: "CAN",
       bitrate_kbps: 500,
-      message_defs: [],
       bus_load_pct: 10,
-      message_jitter_ms: 0
+      message_jitter_ms: 0,
+      message_defs: []
     },
+    faults_enabled: false,
     faults: [],
     environmental_perturbations: {
       EMI_level: "none",
@@ -92,17 +96,33 @@ function createDefaultState() {
       provenance: {}
     },
     security: null,
-    ecu_catalog_entry: null
+    ecu_catalog_entry: null,
+    unit_test_params: {
+      input_sequence: [],
+      measurement_window_ms: 0,
+      steady_state_tolerance: 0,
+      overshoot_limit: 0
+    },
+    integration_test_params: {
+      connectivity_topology: "",
+      gateway_behaviour: ""
+    },
+    stress_endurance_params: {
+      duration_hours: 0,
+      high_temperature_profile: "",
+      battery_drain_model: "",
+      background_load_pattern: ""
+    }
   };
 }
 
-const defaultState = createDefaultState();
 export const state = createDefaultState();
 const subscribers = [];
 
 export function resetState() {
+  const fresh = createDefaultState();
   Object.keys(state).forEach(key => delete state[key]);
-  Object.assign(state, JSON.parse(JSON.stringify(defaultState)));
+  Object.assign(state, fresh);
   notify();
 }
 
@@ -110,6 +130,9 @@ export function setState(path, value) {
   const parts = path.split('.');
   let obj = state;
   for (let i = 0; i < parts.length - 1; i++) {
+    if (obj[parts[i]] === null || obj[parts[i]] === undefined) {
+      obj[parts[i]] = {};
+    }
     obj = obj[parts[i]];
   }
   obj[parts[parts.length - 1]] = value;
@@ -158,11 +181,72 @@ const FLATTEN_SKIP = new Set([
   'selection_strategy', 'search_algorithm', 'ecu_catalog_entry'
 ]);
 
+// Lists that should be sent as a single array under a backend key (scalars or
+// items that the backend never validates per-element).
+const LIST_KEY_MAP = {
+  'sequence_script': 'sequenceScript',
+  'event_triggers':  'eventTriggers',
+  'bus_config.message_defs': 'messageDefs',
+  'tags':            'tags',
+  'hw_interface':    'hwInterface',
+  'export_formats':  'exportFormats',
+  'advanced.constraint_expressions': 'constraintExpressions',
+  'reporting.signals_to_record': 'signalsToRecord'
+};
+
+// Lists whose elements ARE validated individually on the backend; they must be
+// flattened to `name[i].subField` form so rules can pick them up.
+const BRACKET_FLATTEN_LISTS = {
+  'faults':      'faults',
+  'assertions':  'assertions',
+  'signal_list': 'signalList'
+};
+
+function snakeToCamel(s) {
+  return s.replace(/_([a-zA-Z])/g, (_, c) => c.toUpperCase());
+}
+
+function flattenObjectIntoBracket(obj, prefix, out) {
+  if (obj === null || obj === undefined) return;
+  if (Array.isArray(obj)) {
+    // Nested arrays inside an item are rare; ship as-is under the prefix.
+    out[prefix] = obj;
+    return;
+  }
+  if (typeof obj === 'object') {
+    for (const [key, val] of Object.entries(obj)) {
+      if (val === null || val === undefined || val === '') continue;
+      flattenObjectIntoBracket(val, `${prefix}.${snakeToCamel(key)}`, out);
+    }
+    return;
+  }
+  out[prefix] = obj;
+}
+
 export function flattenStateToOverrides() {
   const result = {};
   function walk(val, path) {
     if (val === null || val === undefined || val === '') return;
-    if (Array.isArray(val)) return;
+    if (Array.isArray(val)) {
+      if (BRACKET_FLATTEN_LISTS[path]) {
+        const base = BRACKET_FLATTEN_LISTS[path];
+        val.forEach((item, i) => {
+          if (item === null || item === undefined) return;
+          if (typeof item !== 'object' || Array.isArray(item)) {
+            result[`${base}[${i}]`] = item;
+            return;
+          }
+          for (const [k, v] of Object.entries(item)) {
+            if (v === null || v === undefined || v === '') continue;
+            flattenObjectIntoBracket(v, `${base}[${i}].${snakeToCamel(k)}`, result);
+          }
+        });
+        return;
+      }
+      const backendKey = LIST_KEY_MAP[path] ?? STATE_TO_BACKEND[path] ?? path;
+      if (val.length > 0) result[backendKey] = val;
+      return;
+    }
     if (typeof val === 'object') {
       for (const [key, child] of Object.entries(val)) {
         walk(child, path ? `${path}.${key}` : key);
@@ -170,7 +254,7 @@ export function flattenStateToOverrides() {
       return;
     }
     const backendKey = STATE_TO_BACKEND[path] ?? path;
-    result[backendKey] = String(val);
+    result[backendKey] = val;
   }
   const full = getFullState();
   for (const [key, val] of Object.entries(full)) {
