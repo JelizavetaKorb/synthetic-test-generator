@@ -511,7 +511,10 @@ public sealed class ScenarioFormatter : IScenarioFormatter
     {
         var obj = new JsonObject();
         foreach (var kvp in dict)
-            obj[Remap(kvp.Key)] = ToJsonNode(kvp.Value);
+        {
+            var outKey = Remap(kvp.Key);
+            SetNestedKey(obj, outKey, ToJsonNode(kvp.Value));
+        }
         return obj;
     }
 
@@ -519,7 +522,34 @@ public sealed class ScenarioFormatter : IScenarioFormatter
     {
         var obj = new JsonObject();
         foreach (var prop in elem.EnumerateObject())
-            obj[Remap(prop.Name)] = JsonNode.Parse(prop.Value.GetRawText());
+        {
+            var outKey = Remap(prop.Name);
+            SetNestedKey(obj, outKey, JsonNode.Parse(prop.Value.GetRawText()));
+        }
         return obj;
+    }
+
+    /// <summary>
+    /// Sets a value on <paramref name="obj"/> using a potentially dotted
+    /// <paramref name="key"/> (e.g. "time_window_ms.from") by creating
+    /// intermediate JsonObjects as needed, so the result is properly nested
+    /// rather than a flat string key containing a dot.
+    /// </summary>
+    private static void SetNestedKey(JsonObject obj, string key, JsonNode? value)
+    {
+        var dot = key.IndexOf('.');
+        if (dot < 0)
+        {
+            obj[key] = value;
+            return;
+        }
+        var parent = key[..dot];
+        var child  = key[(dot + 1)..];
+        if (obj[parent] is not JsonObject nested)
+        {
+            nested = new JsonObject();
+            obj[parent] = nested;
+        }
+        SetNestedKey(nested, child, value);
     }
 }

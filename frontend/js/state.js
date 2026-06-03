@@ -178,7 +178,11 @@ export function isFieldLocked(path) {
 const FLATTEN_SKIP = new Set([
   'profile', 'recommended_assertions', 'scenario_id', 'created_at',
   'sweep_parameters', 'combinatorial_strategy', 'max_generated_scenarios',
-  'selection_strategy', 'search_algorithm', 'ecu_catalog_entry'
+  'selection_strategy', 'search_algorithm', 'ecu_catalog_entry',
+  // UI-only fields not present in the professor's JSON schema:
+  'faults_enabled', 'ecu_catalog_unavailable',
+  'unit_test_params', 'stress_endurance_params',
+  'integration_test_params',
 ]);
 
 // Lists that should be sent as a single array under a backend key (scalars or
