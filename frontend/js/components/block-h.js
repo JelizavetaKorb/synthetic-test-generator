@@ -43,8 +43,20 @@ function renderSweepEntry(name, cfg, mapEl) {
   const row = document.createElement('div'); row.className = 'list-item';
   const nameW = document.createElement('div'); nameW.className = 'field-wrapper';
   nameW.appendChild(Object.assign(document.createElement('label'), { textContent: 'Parameter' }));
-  const nameI = document.createElement('input'); nameI.type = 'text'; nameI.value = name; nameI.readOnly = true;
+  const nameI = document.createElement('input'); nameI.type = 'text'; nameI.value = name;
   nameI.setAttribute('data-field', `sweep_parameters.${name}`); nameW.appendChild(nameI); row.appendChild(nameW);
+  nameI.addEventListener('change', () => {
+    const newName = nameI.value.trim(); if (!newName || newName === name) return;
+    const cur = { ...(getState('sweep_parameters') || {}) };
+    if (cur[newName]) { nameI.value = name; return; }   // already exists, revert
+    const cfg = cur[name]; delete cur[name]; cur[newName] = cfg;
+    setState('sweep_parameters', cur);
+    // update all data-field attributes inside this row
+    row.querySelectorAll('[data-field]').forEach(el => {
+      el.setAttribute('data-field', el.getAttribute('data-field').replace(`sweep_parameters.${name}`, `sweep_parameters.${newName}`));
+    });
+    name = newName;
+  });
   const typeW = document.createElement('div'); typeW.className = 'field-wrapper';
   typeW.appendChild(Object.assign(document.createElement('label'), { textContent: 'Strategy' }));
   const typeSel = document.createElement('select'); typeSel.setAttribute('data-field', `sweep_parameters.${name}.type`);
@@ -66,17 +78,30 @@ export function render(container) {
   const block = createCollapsibleBlock('H. Parameter Sweep / Sampling Strategy', 'block-h', content => {
     const mapEl = document.createElement('div'); mapEl.className = 'dynamic-list-items';
     Object.entries(getState('sweep_parameters') || {}).forEach(([n, c]) => renderSweepEntry(n, c, mapEl));
-    const addRow = document.createElement('div'); addRow.className = 'field-wrapper';
-    const nameInp = document.createElement('input'); nameInp.type = 'text'; nameInp.placeholder = 'Parameter name';
-    const addBtn = document.createElement('button'); addBtn.type = 'button'; addBtn.textContent = 'Add Sweep Parameter';
+    const addRow = document.createElement('div'); addRow.className = 'sweep-add-row';
+    const nameInp = document.createElement('input'); nameInp.type = 'text'; nameInp.placeholder = 'Parameter name (e.g. initial_conditions.battery_voltage_V)';
+    const nameErr = document.createElement('span'); nameErr.className = 'sweep-name-error'; nameErr.style.display = 'none';
+    const addBtn = document.createElement('button'); addBtn.type = 'button'; addBtn.className = 'btn btn-primary'; addBtn.textContent = 'Add Sweep';
     addBtn.addEventListener('click', () => {
-      const name = nameInp.value.trim(); if (!name) return;
-      const cur = getState('sweep_parameters') || {}; if (cur[name]) return;
+      let name = nameInp.value.trim();
+      if (!name) {
+        // auto-generate a unique key so the button always does something visible
+        const cur = getState('sweep_parameters') || {};
+        let n = 1; while (cur[`param_${n}`]) n++;
+        name = `param_${n}`;
+      }
+      const cur = getState('sweep_parameters') || {};
+      if (cur[name]) {
+        nameErr.textContent = `"${name}" already exists.`; nameErr.style.display = '';
+        nameInp.focus(); return;
+      }
+      nameErr.style.display = 'none';
       const newCfg = { type: 'fixed', ...TYPE_DEFS.fixed };
       setState('sweep_parameters', { ...cur, [name]: newCfg });
       renderSweepEntry(name, newCfg, mapEl); nameInp.value = '';
     });
-    addRow.appendChild(nameInp); addRow.appendChild(addBtn);
+    nameInp.addEventListener('input', () => { nameErr.style.display = 'none'; });
+    addRow.appendChild(nameInp); addRow.appendChild(addBtn); addRow.appendChild(nameErr);
     content.appendChild(addRow); content.appendChild(mapEl);
     [
       createField({ label: 'Combinatorial Strategy', path: 'combinatorial_strategy', type: 'select', options: ['cartesian','pairwise','twise','random_sample','guided_by_search'], defaultValue: 'pairwise' }),

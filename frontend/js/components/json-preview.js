@@ -28,7 +28,7 @@ function isEmpty(v) {
 }
 
 function fmtPrimitive(v) {
-  if (v === null || v === undefined) return '—';
+  if (v === null || v === undefined) return '(none)';
   if (typeof v === 'boolean') return v ? 'Yes' : 'No';
   return String(v);
 }
@@ -118,13 +118,36 @@ function renderSummary(target) {
 
 export function render(container) {
   const panel = createElement('div', { id: 'preview-panel', class: 'preview-panel hidden' });
-  panel.appendChild(createElement('h2', { class: 'preview-title' }, ['Scenario Preview']));
+
+  const header = createElement('div', { class: 'preview-header' });
+  header.appendChild(createElement('h2', { class: 'preview-title' }, ['Scenario Preview']));
+  const closeBtn = createElement('button', {
+    class: 'preview-close',
+    type: 'button',
+    'aria-label': 'Close preview',
+    title: 'Close preview',
+  }, ['\u00D7']);
+  closeBtn.addEventListener('click', hide);
+  header.appendChild(closeBtn);
+  panel.appendChild(header);
+
   const body = createElement('div', { class: 'preview-body' });
   panel.appendChild(body);
   container.appendChild(panel);
+
+  // Esc closes the panel when it is open.
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !panel.classList.contains('hidden')) hide();
+  });
+
   subscribe(() => {
     if (!panel.classList.contains('hidden')) renderSummary(body);
   });
+}
+
+function hide() {
+  const panel = document.getElementById('preview-panel');
+  if (panel) panel.classList.add('hidden');
 }
 
 export function toggle() {

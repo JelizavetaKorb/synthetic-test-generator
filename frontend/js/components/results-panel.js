@@ -35,6 +35,8 @@ export function showResults(response, scenarioName) {
   pre.textContent = jsonStr;
   panel.appendChild(pre);
   const actions = createElement('div', { class: 'results-actions' });
+  const backBtn = createElement('button', { class: 'btn btn-primary' }, ['Edit Parameters']);
+  backBtn.addEventListener('click', hideResults);
   const downloadBtn = createElement('button', { class: 'btn' }, ['Download JSON']);
   downloadBtn.addEventListener('click', () => {
     const name = (scenarioName && scenarioName.trim()) ? scenarioName.trim() : 'scenarios';
@@ -46,14 +48,12 @@ export function showResults(response, scenarioName) {
   const copyBtn = createElement('button', { class: 'btn' }, ['Copy to Clipboard']);
   copyBtn.addEventListener('click', () => {
     navigator.clipboard.writeText(jsonStr).then(() => {
-      copyBtn.textContent = 'Copied!';
+      copyBtn.textContent = 'Copied';
       setTimeout(() => { copyBtn.textContent = 'Copy to Clipboard'; }, 2000);
     });
   });
-  const backBtn = createElement('button', { class: 'btn' }, ['Edit Parameters']);
-  backBtn.addEventListener('click', hideResults);
+  actions.appendChild(backBtn);
   actions.appendChild(downloadBtn);
   actions.appendChild(copyBtn);
-  actions.appendChild(backBtn);
   panel.appendChild(actions);
 }

@@ -20,7 +20,7 @@ export function render(container) {
     ecuInput.setAttribute('data-field', 'ecu_id');
     ecuInput.value = getState('ecu_id') || '';
     if (catalogDown) {
-      ecuInput.placeholder = 'Catalog unavailable — type the ECU ID manually';
+      ecuInput.placeholder = 'Catalog unavailable. Type the ECU ID manually.';
       ecuInput.title = 'ECU catalog API is offline; enter the ID by hand';
       ecuInput.addEventListener('input', () => setState('ecu_id', ecuInput.value));
     } else {

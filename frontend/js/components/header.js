@@ -8,12 +8,12 @@ import { hideResults } from './results-panel.js';
 let profilesCache = [];
 
 function loadEcuCatalog(selectEl) {
-  // Show a visible loading state — the configured backend (Render.com free tier)
+  // Show a visible loading state. The configured backend (Render.com free tier)
   // can take 30+ seconds to wake from sleep on the first request.
   const loadingOpt = document.createElement('option');
   loadingOpt.disabled = true;
   loadingOpt.value = '';
-  loadingOpt.textContent = 'Loading ECU catalog…';
+  loadingOpt.textContent = 'Loading ECU catalog';
   selectEl.appendChild(loadingOpt);
   selectEl.value = '';
 
@@ -30,7 +30,7 @@ function loadEcuCatalog(selectEl) {
       ecus.forEach(ecu => {
         const opt = document.createElement('option');
         opt.value = ecu.ecuId;
-        opt.textContent = `${ecu.ecuId} — ${ecu.ecuName}`;
+        opt.textContent = `${ecu.ecuId} \u00B7 ${ecu.ecuName}`;
         opt.dataset.entry = JSON.stringify(ecu);
         selectEl.appendChild(opt);
       });
@@ -52,7 +52,7 @@ function loadEcuCatalog(selectEl) {
         : (err && err.status ? `server returned HTTP ${err.status}` : 'unknown error');
       const opt = document.createElement('option');
       opt.disabled = true;
-      opt.textContent = `ECU catalog unavailable (${reason}) — type the ECU ID in block B, or click to retry`;
+      opt.textContent = `ECU catalog unavailable (${reason}). Type the ECU ID in block B, or click to retry.`;
       selectEl.appendChild(opt);
       // Flag the catalog as unavailable so block-b switches to manual entry.
       setState('ecu_catalog_unavailable', true);
@@ -90,7 +90,7 @@ function handleTestTypeChange(selectEl) {
 function loadProfiles(selectEl) {
   const loadingOpt = document.createElement('option');
   loadingOpt.disabled = true;
-  loadingOpt.textContent = 'Loading profiles…';
+  loadingOpt.textContent = 'Loading profiles';
   selectEl.appendChild(loadingOpt);
 
   getProfiles()
@@ -111,7 +111,7 @@ function loadProfiles(selectEl) {
         : (err && err.status ? `server returned HTTP ${err.status}` : 'unknown error');
       const opt = document.createElement('option');
       opt.disabled = true;
-      opt.textContent = `Profiles unavailable (${reason}) — click to retry`;
+      opt.textContent = `Profiles unavailable (${reason}). Click to retry.`;
       selectEl.appendChild(opt);
       const retry = () => {
         selectEl.removeEventListener('mousedown', retry);

@@ -72,13 +72,13 @@ export const FIELD_LABELS = {
 // Friendly label for indexed array paths like "faults.2.target" or
 // "bus_config.message_defs.0.id".
 const ARRAY_LABEL_PATTERNS = [
-  [/^faults\.(\d+)\.(.+)$/, (m) => `Fault #${+m[1] + 1} — ${humanizeKey(m[2])}`],
-  [/^signal_list\.(\d+)\.(.+)$/, (m) => `Signal #${+m[1] + 1} — ${humanizeKey(m[2])}`],
-  [/^bus_config\.message_defs\.(\d+)\.(.+)$/, (m) => `Message #${+m[1] + 1} — ${humanizeKey(m[2])}`],
-  [/^assertions\.(\d+)\.(.+)$/, (m) => `Assertion #${+m[1] + 1} — ${humanizeKey(m[2])}`],
-  [/^sequence_script\.(\d+)\.(.+)$/, (m) => `Sequence step #${+m[1] + 1} — ${humanizeKey(m[2])}`],
-  [/^event_triggers\.(\d+)\.(.+)$/, (m) => `Event trigger #${+m[1] + 1} — ${humanizeKey(m[2])}`],
-  [/^sweep_parameters\.([^.]+)(?:\.(.+))?$/, (m) => `Sweep "${m[1]}"${m[2] ? ' — ' + humanizeKey(m[2]) : ''}`],
+  [/^faults\.(\d+)\.(.+)$/, (m) => `Fault #${+m[1] + 1}: ${humanizeKey(m[2])}`],
+  [/^signal_list\.(\d+)\.(.+)$/, (m) => `Signal #${+m[1] + 1}: ${humanizeKey(m[2])}`],
+  [/^bus_config\.message_defs\.(\d+)\.(.+)$/, (m) => `Message #${+m[1] + 1}: ${humanizeKey(m[2])}`],
+  [/^assertions\.(\d+)\.(.+)$/, (m) => `Assertion #${+m[1] + 1}: ${humanizeKey(m[2])}`],
+  [/^sequence_script\.(\d+)\.(.+)$/, (m) => `Sequence step #${+m[1] + 1}: ${humanizeKey(m[2])}`],
+  [/^event_triggers\.(\d+)\.(.+)$/, (m) => `Event trigger #${+m[1] + 1}: ${humanizeKey(m[2])}`],
+  [/^sweep_parameters\.([^.]+)(?:\.(.+))?$/, (m) => `Sweep "${m[1]}"${m[2] ? ': ' + humanizeKey(m[2]) : ''}`],
   [/^advanced\.constraint_expressions\.(\d+)$/, (m) => `Constraint expression #${+m[1] + 1}`],
 ];
 

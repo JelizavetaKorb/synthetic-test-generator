@@ -126,7 +126,7 @@ function checkInitialConditions(s, issues) {
       code: 'IGN_OFF_POWER_ON',
       severity: 'warning',
       field: 'ecu_power_state',
-      message: `Ignition is OFF but ECU power state is ON. This is only realistic on a bench setup — change target execution to "bench" if intentional.`,
+      message: `Ignition is OFF but ECU power state is ON. This is only realistic on a bench setup. Change target execution to "bench" if intentional.`,
       suggestedFix: { path: 'initial_conditions.ignition_key', value: 'ON', label: 'Turn ignition ON' },
     });
   }
