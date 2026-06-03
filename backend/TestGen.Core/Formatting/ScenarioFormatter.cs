@@ -7,8 +7,8 @@ namespace TestGen.Core.Formatting;
 
 public interface IScenarioFormatter
 {
-    JsonDocument FormatOne(Scenario scenario, Profile profile, GenerateRequest request);
-    JsonDocument FormatMany(IReadOnlyList<Scenario> scenarios, Profile profile, GenerateRequest request);
+    JsonDocument FormatOne(Scenario scenario, Profile? profile, GenerateRequest request);
+    JsonDocument FormatMany(IReadOnlyList<Scenario> scenarios, Profile? profile, GenerateRequest request);
 }
 
 public sealed class ScenarioFormatter : IScenarioFormatter
@@ -104,7 +104,7 @@ public sealed class ScenarioFormatter : IScenarioFormatter
         new(StringComparer.Ordinal)
         { "busType", "bitrateKbps", "busLoadPct", "messageJitterMs" };
 
-    public JsonDocument FormatOne(Scenario scenario, Profile profile, GenerateRequest request)
+    public JsonDocument FormatOne(Scenario scenario, Profile? profile, GenerateRequest request)
     {
         var p    = NormalizeBracketKeys(scenario.Parameters);
         var root = new JsonObject();
@@ -217,7 +217,8 @@ public sealed class ScenarioFormatter : IScenarioFormatter
         if (p.TryGetValue("sweepParameters", out var sweepRaw))
             root["sweep_parameters"] = ToJsonNode(sweepRaw);
 
-        root["profile"] = BuildProfileNode(profile);
+        if (profile is not null)
+            root["profile"] = BuildProfileNode(profile);
 
         var handledPrefixes = new[]
         {
@@ -269,7 +270,7 @@ public sealed class ScenarioFormatter : IScenarioFormatter
 
     public JsonDocument FormatMany(
         IReadOnlyList<Scenario> scenarios,
-        Profile profile,
+        Profile? profile,
         GenerateRequest request)
     {
         var array = new JsonArray();

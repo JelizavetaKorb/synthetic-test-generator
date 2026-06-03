@@ -19,6 +19,15 @@ public sealed class GeneratorPipeline
     private readonly IProfileService     _profileService;
     private readonly IScenarioValidator  _validator;
 
+    private static readonly Profile NoProfile = new()
+    {
+        ProfileId             = string.Empty,
+        Name                  = "scenario",
+        DefaultParameters     = new Dictionary<string, object>(),
+        LockedParameters      = Array.Empty<string>(),
+        RecommendedAssertions = Array.Empty<string>()
+    };
+
     public GeneratorPipeline(IProfileService profileService, IScenarioValidator validator)
     {
         _profileService = profileService;
@@ -27,23 +36,34 @@ public sealed class GeneratorPipeline
 
     public PrepareInputsResult PrepareInputs(GenerateRequest request)
     {
-        var profile = _profileService.GetById(request.ProfileId);
-        if (profile is null)
-            return new PrepareInputsResult
-            {
-                Issues = new[]
-                {
-                    new ValidationIssue
-                    {
-                        Severity = "error",
-                        Code     = "PROFILE_NOT_FOUND",
-                        Field    = "profileId",
-                        Message  = $"Profile '{request.ProfileId}' not found."
-                    }
-                }
-            };
+        Profile profile;
+        var baseParameters = new Dictionary<string, object>();
 
-        var baseParameters = new Dictionary<string, object>(profile.DefaultParameters);
+        if (string.IsNullOrWhiteSpace(request.ProfileId))
+        {
+            profile = NoProfile;
+        }
+        else
+        {
+            var found = _profileService.GetById(request.ProfileId);
+            if (found is null)
+                return new PrepareInputsResult
+                {
+                    Issues = new[]
+                    {
+                        new ValidationIssue
+                        {
+                            Severity = "error",
+                            Code     = "PROFILE_NOT_FOUND",
+                            Field    = "profileId",
+                            Message  = $"Profile '{request.ProfileId}' not found."
+                        }
+                    }
+                };
+            profile = found;
+            baseParameters = new Dictionary<string, object>(profile.DefaultParameters);
+        }
+
         if (request.Overrides is not null)
             foreach (var (k, v) in request.Overrides)
                 baseParameters[k] = v;
@@ -161,8 +181,8 @@ public sealed class GeneratorPipeline
             var candidate = new Scenario
             {
                 ScenarioId  = Guid.NewGuid().ToString(),
-                Name        = $"{profile.Name} #{index:D3}",
-                Description = $"Generated from profile '{profile.ProfileId}'.",
+                Name        = string.IsNullOrEmpty(profile.ProfileId) ? $"scenario-{index:D3}" : $"{profile.Name} #{index:D3}",
+                Description = string.IsNullOrEmpty(profile.ProfileId) ? "Generated without a profile." : $"Generated from profile '{profile.ProfileId}'.",
                 Parameters  = parameters
             };
 

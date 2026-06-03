@@ -42,13 +42,13 @@ public sealed class ScenariosController : ControllerBase
         var request = dto.ToDomain();
         var result  = _generation.Generate(request);
 
-        var profile = _profiles.GetById(dto.ProfileId);
+        var profile = string.IsNullOrWhiteSpace(dto.ProfileId) ? null : _profiles.GetById(dto.ProfileId);
         var taken   = result.Scenarios.Take(dto.MaxScenarios).ToList();
 
         var scenarios = taken
             .Select(s =>
             {
-                using var doc = _formatter.FormatOne(s, profile!, request);
+                using var doc = _formatter.FormatOne(s, profile, request);
                 return doc.RootElement.Clone();
             })
             .ToArray();

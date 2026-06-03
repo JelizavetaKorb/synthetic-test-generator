@@ -25,8 +25,7 @@ public sealed class SweepSpecDto
 
 public sealed class GenerateRequestDto
 {
-    [Required]
-    public string ProfileId { get; set; } = string.Empty;
+    public string? ProfileId { get; set; }
 
     public Dictionary<string, object>? Overrides { get; set; }
 
@@ -38,7 +37,7 @@ public sealed class GenerateRequestDto
 
     public GenerateRequest ToDomain() => new()
     {
-        ProfileId = ProfileId,
+        ProfileId = ProfileId ?? string.Empty,
         Overrides = Overrides,
         SweepParameters = SweepParameters?.ToDictionary(
             kvp => kvp.Key,
