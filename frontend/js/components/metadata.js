@@ -60,7 +60,6 @@ export function render(container) {
       createField({ label: 'Priority', path: 'priority', type: 'select', options: ['low', 'medium', 'high', 'critical'], defaultValue: 'medium' }),
       renderTagsInput(),
       createField({ label: 'Target Execution', path: 'target_execution', type: 'select', options: ['simulation', 'SIL', 'HIL', 'bench', 'lab'], defaultValue: 'simulation' }),
-      createCheckboxGroup({ label: 'Export Formats', path: 'export_formats', options: ['JSON', 'OpenSCENARIO', 'XCP', 'CANoe', 'Vector', 'CSV', 'TestScript'] }),
     ].forEach(el => content.appendChild(el));
     const errDiv = document.createElement('div');
     errDiv.className = 'block-errors';

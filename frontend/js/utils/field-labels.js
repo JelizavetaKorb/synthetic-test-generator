@@ -10,7 +10,6 @@ export const FIELD_LABELS = {
   'priority': 'Priority',
   'tags': 'Tags',
   'target_execution': 'Target execution',
-  'export_formats': 'Export formats',
   'test_type': 'Test type',
 
   // ECU

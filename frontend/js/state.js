@@ -12,7 +12,6 @@ function createDefaultState() {
     version: "",
     priority: "medium",
     target_execution: "simulation",
-    export_formats: [],
     profile: null,
     test_type: "",
     recommended_assertions: [],
@@ -193,7 +192,6 @@ const LIST_KEY_MAP = {
   'bus_config.message_defs': 'messageDefs',
   'tags':            'tags',
   'hw_interface':    'hwInterface',
-  'export_formats':  'exportFormats',
   'advanced.constraint_expressions': 'constraintExpressions',
   'reporting.signals_to_record': 'signalsToRecord'
 };

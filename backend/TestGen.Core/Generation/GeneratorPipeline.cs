@@ -146,7 +146,28 @@ public sealed class GeneratorPipeline
         if (spec.Values is null || spec.Values.Length == 0)
             return (null, SweepError(key, "INVALID_SWEEP_SPEC",
                 $"Sweep '{key}': enum_list requires a non-empty 'values' array."));
-        return (spec.Values, null);
+        // Coerce string values that look like numbers so the output schema
+        // receives numeric JSON values (e.g. -20 not "-20") regardless of
+        // whether the frontend typed them into a text field.
+        var coerced = spec.Values.Select(CoerceStringToNumber).ToArray();
+        return (coerced, null);
+    }
+
+    private static object CoerceStringToNumber(object v)
+    {
+        string? s = v switch
+        {
+            string str => str,
+            System.Text.Json.JsonElement { ValueKind: System.Text.Json.JsonValueKind.String } je
+                => je.GetString(),
+            _ => null
+        };
+        if (s is null) return v;
+        if (long.TryParse(s, System.Globalization.NumberStyles.Integer,
+                System.Globalization.CultureInfo.InvariantCulture, out var l)) return l;
+        if (double.TryParse(s, System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture, out var d)) return d;
+        return v;
     }
 
     private static (object[]?, ValidationIssue?) ExpandRandomUniform(string key, SweepSpec spec)

@@ -25,7 +25,6 @@ public sealed class ScenarioFormatter : IScenarioFormatter
             ["ecuTemperatureC"]                          = "ecu_temperature_C",
             ["hwInterface"]                              = "hw_interface",
             ["diagnosticSession"]                        = "diagnostic_session",
-            ["exportFormats"]                            = "export_formats",
             ["targetExecution"]                          = "target_execution",
             ["combinatorialStrategy"]                    = "combinatorial_strategy",
             ["maxGeneratedScenarios"]                    = "max_generated_scenarios",
@@ -65,6 +64,11 @@ public sealed class ScenarioFormatter : IScenarioFormatter
             ["messageJitterMs"]                          = "message_jitter_ms",
 
             ["reporting.captureSignals"]                 = "signals_to_record",
+            ["signalsToRecord"]                           = "signals_to_record",
+
+            ["environmental_perturbations.temperature_ramp.start_c"]       = "temperature_ramp.start_C",
+            ["environmental_perturbations.temperature_ramp.end_c"]         = "temperature_ramp.end_C",
+            ["environmental_perturbations.temperature_ramp.rate_c_per_min"] = "temperature_ramp.rate_C_per_min",
             ["reporting.captureDtcs"]                    = "capture_dtcs",
             ["reporting.format"]                         = "report_format",
             ["reporting.logLevel"]                       = "log_level",
@@ -91,7 +95,7 @@ public sealed class ScenarioFormatter : IScenarioFormatter
         new(StringComparer.Ordinal)
         {
             "ecuId", "ecuMode", "ecuPowerState", "ecuFirmwareVersion", "ecuTemperatureC",
-            "hwInterface", "diagnosticSession", "exportFormats", "targetExecution",
+            "hwInterface", "diagnosticSession", "targetExecution",
             "combinatorialStrategy", "maxGeneratedScenarios", "selectionStrategy",
             "priority", "author", "project", "tags", "version"
         };
@@ -102,7 +106,7 @@ public sealed class ScenarioFormatter : IScenarioFormatter
 
     private static readonly HashSet<string> BusFlatKeys =
         new(StringComparer.Ordinal)
-        { "busType", "bitrateKbps", "busLoadPct", "messageJitterMs" };
+        { "busType", "bitrateKbps", "busLoadPct", "messageJitterMs", "messageDefs" };
 
     public JsonDocument FormatOne(Scenario scenario, Profile? profile, GenerateRequest request)
     {
@@ -157,7 +161,9 @@ public sealed class ScenarioFormatter : IScenarioFormatter
         var reporting = new JsonObject();
         foreach (var kvp in p)
         {
-            if (!kvp.Key.StartsWith("reporting.", StringComparison.Ordinal)) continue;
+            bool isReporting = kvp.Key.StartsWith("reporting.", StringComparison.Ordinal)
+                               || kvp.Key == "signalsToRecord";
+            if (!isReporting) continue;
             var outKey = Remap(kvp.Key);
             reporting[outKey] = ToJsonNode(kvp.Value);
         }
@@ -260,6 +266,8 @@ public sealed class ScenarioFormatter : IScenarioFormatter
         handledKeys.Add("sweepParameters");
         // Already consumed above (folded into advanced.constraint_expressions).
         handledKeys.Add("constraintExpressions");
+        // Consumed above inside the reporting block.
+        handledKeys.Add("signalsToRecord");
         // Keys the frontend may emit that are not part of the professor's
         // JSON schema (additionalProperties: false). Drop them silently so
         // the output validates.
@@ -304,7 +312,16 @@ public sealed class ScenarioFormatter : IScenarioFormatter
                     existing = new JsonObject();
                     root[section] = existing;
                 }
-                existing[field] = ToJsonNode(kvp.Value);
+                // Case-insensitive key lookup: sweep overrides arrive with snake_case
+                // paths (e.g. battery_voltage_v) while the base profile used the exact
+                // cased key (battery_voltage_V). Reuse the original key so the value
+                // is overwritten rather than duplicated under a differently-cased name.
+                var resolvedField = existing.Select(x => x.Key)
+                    .FirstOrDefault(k => string.Equals(k, field, StringComparison.OrdinalIgnoreCase))
+                    ?? field;
+                // Use SetNestedKey so dotted sub-fields (e.g. temperature_ramp.start_C)
+                // are properly nested rather than stored as literal dotted string keys.
+                SetNestedKey(existing, resolvedField, ToJsonNode(kvp.Value));
             }
             else
             {

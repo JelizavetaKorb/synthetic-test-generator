@@ -77,7 +77,6 @@ function renderSummary(target) {
   ['name', 'description', 'author', 'project', 'priority', 'target_execution', 'test_type', 'profile']
     .forEach(k => { if (!isEmpty(s[k])) renderKv(top, k, s[k]); });
   if (!isEmpty(s.tags)) renderKv(top, 'tags', s.tags.join(', '));
-  if (!isEmpty(s.export_formats)) renderKv(top, 'export_formats', s.export_formats.join(', '));
   if (!isEmpty(s.ecu_id)) renderKv(top, 'ecu_id', s.ecu_id);
   if (!isEmpty(s.ecu_mode)) renderKv(top, 'ecu_mode', s.ecu_mode);
   if (!isEmpty(s.hw_interface)) renderKv(top, 'hw_interface', s.hw_interface.join(', '));
