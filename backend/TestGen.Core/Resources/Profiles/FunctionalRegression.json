@@ -1,0 +1,61 @@
+{
+  "profileId": "functional-regression",
+  "name": "Functional Regression",
+  "description": "Functional regression suite. Exercises a broad slice of nominal behaviour with a parameter sweep so the suite can be re-run against every firmware revision.",
+  "defaultParameters": {
+    "priority": "medium",
+    "version": "1.0",
+
+    "initialConditions.ambientTemperatureC": 25,
+    "initialConditions.batteryVoltageV": 12.6,
+    "initialConditions.engineState": "RUNNING",
+    "initialConditions.fuelLevelPercent": 75,
+    "initialConditions.vehicleSpeedMps": 15.0,
+    "initialConditions.gearPosition": "D",
+    "initialConditions.ignitionKey": "ON",
+    "initialConditions.ambientHumidityPct": 50,
+    "initialConditions.gpsFixQuality": "GOOD",
+    "initialConditions.localizationErrorM": 0.1,
+
+    "ecuId": "ENGINE-ECU-001",
+    "ecuMode": "NORMAL",
+    "ecuTemperatureC": 25,
+    "ecuPowerState": "ON",
+    "hwInterface": ["CAN"],
+    "diagnosticSession": "NONE",
+
+    "targetExecution": "SIL",
+
+    "bus.busName": "PowertrainCAN",
+    "bus.busType": "CAN",
+    "bus.bitrateKbps": 500,
+    "bus.busLoadPct": 20,
+    "bus.messageJitterMs": 1,
+
+    "testDurationMs": 30000,
+    "timeResolutionMs": 10,
+    "timing.repetitions": 1,
+    "timing.interTestDelayMs": 500,
+
+    "combinatorialStrategy": "pairwise",
+    "maxGeneratedScenarios": 50,
+    "selectionStrategy": "filter_by_constraints",
+
+    "reporting.format": "JSON",
+    "reporting.logLevel": "INFO",
+    "reporting.telemetryFrequencyHz": 20,
+    "reporting.traceCapture": false,
+    "reporting.saveArtifacts": true,
+
+    "execution.targetRunner": "SIL_runner",
+    "execution.timeoutMs": 180000
+  },
+  "lockedParameters": [
+    "combinatorialStrategy"
+  ],
+  "recommendedAssertions": [
+    "all_nominal_assertions_pass",
+    "no_unexpected_dtcs",
+    "outputs_match_golden_reference"
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "profileId": "regulation-certification",
+  "name": "Regulation Certification",
+  "description": "Regulatory certification suite (e.g. UNECE / ISO 26262 process artefacts). Exercises the ECU under standardised, fully-documented conditions so the resulting trace can be submitted as evidence.",
+  "defaultParameters": {
+    "priority": "high",
+    "version": "1.0",
+
+    "initialConditions.ambientTemperatureC": 23,
+    "initialConditions.batteryVoltageV": 13.5,
+    "initialConditions.engineState": "RUNNING",
+    "initialConditions.fuelLevelPercent": 90,
+    "initialConditions.vehicleSpeedMps": 0,
+    "initialConditions.gearPosition": "N",
+    "initialConditions.ignitionKey": "ON",
+    "initialConditions.ambientHumidityPct": 50,
+    "initialConditions.gpsFixQuality": "EXCELLENT",
+    "initialConditions.localizationErrorM": 0.05,
+
+    "ecuId": "ENGINE-ECU-001",
+    "ecuMode": "NORMAL",
+    "ecuTemperatureC": 25,
+    "ecuPowerState": "ON",
+    "hwInterface": ["CAN", "CAN-FD"],
+    "diagnosticSession": "DEFAULT",
+
+    "targetExecution": "lab",
+
+    "bus.busName": "CertCAN",
+    "bus.busType": "CAN-FD",
+    "bus.bitrateKbps": 2000,
+    "bus.busLoadPct": 30,
+    "bus.messageJitterMs": 1,
+
+    "testDurationMs": 120000,
+    "timeResolutionMs": 1,
+    "timing.repetitions": 3,
+    "timing.interTestDelayMs": 5000,
+
+    "reporting.format": "PDF",
+    "reporting.logLevel": "INFO",
+    "reporting.telemetryFrequencyHz": 100,
+    "reporting.traceCapture": true,
+    "reporting.saveArtifacts": true,
+
+    "execution.targetRunner": "HIL_bench",
+    "execution.timeoutMs": 600000
+  },
+  "lockedParameters": [
+    "targetExecution",
+    "reporting.traceCapture",
+    "reporting.saveArtifacts",
+    "reporting.format"
+  ],
+  "recommendedAssertions": [
+    "all_required_signals_logged",
+    "test_artefacts_signed",
+    "no_unexpected_dtcs",
+    "timing_margins_within_spec"
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "profileId": "stress-endurance",
+  "name": "Stress / Endurance",
+  "description": "Long-duration stress and endurance run. Drives the ECU at elevated temperature with sustained bus load to surface thermal drift, memory leaks, and degradation of timing margins.",
+  "defaultParameters": {
+    "priority": "medium",
+    "version": "1.0",
+
+    "initialConditions.ambientTemperatureC": 70,
+    "initialConditions.batteryVoltageV": 12.0,
+    "initialConditions.engineState": "RUNNING",
+    "initialConditions.fuelLevelPercent": 80,
+    "initialConditions.vehicleSpeedMps": 25.0,
+    "initialConditions.gearPosition": "D",
+    "initialConditions.ignitionKey": "ON",
+    "initialConditions.ambientHumidityPct": 60,
+    "initialConditions.gpsFixQuality": "GOOD",
+    "initialConditions.localizationErrorM": 0.2,
+
+    "ecuId": "ENGINE-ECU-001",
+    "ecuMode": "NORMAL",
+    "ecuTemperatureC": 95,
+    "ecuPowerState": "ON",
+    "hwInterface": ["CAN"],
+    "diagnosticSession": "NONE",
+
+    "targetExecution": "HIL",
+
+    "bus.busName": "EnduranceCAN",
+    "bus.busType": "CAN",
+    "bus.bitrateKbps": 500,
+    "bus.busLoadPct": 70,
+    "bus.messageJitterMs": 5,
+
+    "environmentalPerturbations.emiLevel": "medium",
+    "environmentalPerturbations.temperatureRamp.startC": 70,
+    "environmentalPerturbations.temperatureRamp.endC": 95,
+    "environmentalPerturbations.temperatureRamp.rateCPerMin": 5,
+
+    "testDurationMs": 3600000,
+    "timeResolutionMs": 50,
+    "timing.repetitions": 1,
+    "timing.interTestDelayMs": 60000,
+
+    "reporting.format": "JSON",
+    "reporting.logLevel": "WARN",
+    "reporting.telemetryFrequencyHz": 5,
+    "reporting.traceCapture": true,
+    "reporting.saveArtifacts": true,
+
+    "execution.targetRunner": "HIL_bench",
+    "execution.timeoutMs": 4200000
+  },
+  "lockedParameters": [
+    "targetExecution",
+    "execution.targetRunner"
+  ],
+  "recommendedAssertions": [
+    "no_memory_leak_detected",
+    "ecuTemperatureC < 110",
+    "task_jitter_within_spec",
+    "no_unexpected_resets",
+    "bus_load_within_budget"
+  ]
+}

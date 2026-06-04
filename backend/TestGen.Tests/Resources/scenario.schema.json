@@ -1,0 +1,923 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ECU Test Scenario Schema (Full)",
+  "type": "object",
+  "required": [
+    "scenario_id",
+    "name",
+    "ecu_id",
+    "target_execution"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "scenario_id": {
+      "type": "string",
+      "description": "UUID or unique identifier"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable scenario name"
+    },
+    "description": {
+      "type": "string"
+    },
+    "author": {
+      "type": "string"
+    },
+    "project": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "version": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "target_execution": {
+      "type": "string",
+      "enum": [
+        "simulation",
+        "SIL",
+        "HIL",
+        "bench",
+        "lab"
+      ],
+      "default": "simulation"
+    },
+    "export_formats": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "JSON",
+          "OpenSCENARIO",
+          "XCP",
+          "CANoe",
+          "Vector",
+          "CSV",
+          "TestScript"
+        ]
+      }
+    },
+    "profile": {
+      "type": "object",
+      "properties": {
+        "profile_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "default_parameters": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "locked_parameters": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "recommended_assertions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "initial_conditions": {
+      "type": "object",
+      "properties": {
+        "ambient_temperature_C": {
+          "type": "number",
+          "minimum": -40,
+          "maximum": 85,
+          "default": 20
+        },
+        "battery_voltage_V": {
+          "type": "number",
+          "minimum": 6.0,
+          "maximum": 16.0,
+          "default": 12.6
+        },
+        "engine_state": {
+          "type": "string",
+          "enum": [
+            "OFF",
+            "IDLE",
+            "RUNNING"
+          ],
+          "default": "IDLE"
+        },
+        "fuel_level_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 100
+        },
+        "vehicle_speed_mps": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 0
+        },
+        "gear_position": {
+          "type": "string",
+          "enum": [
+            "P",
+            "R",
+            "N",
+            "D",
+            "1",
+            "2",
+            "3"
+          ],
+          "default": "N"
+        },
+        "ignition_key": {
+          "type": "string",
+          "enum": [
+            "OFF",
+            "ON"
+          ],
+          "default": "ON"
+        },
+        "ambient_humidity_pct": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 50
+        },
+        "gps_fix_quality": {
+          "type": "string",
+          "enum": [
+            "NONE",
+            "POOR",
+            "GOOD",
+            "EXCELLENT"
+          ],
+          "default": "GOOD"
+        },
+        "localization_error_m": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 0.1
+        }
+      },
+      "additionalProperties": false
+    },
+    "ecu_id": {
+      "type": "string",
+      "description": "Reference to ECU catalog entry"
+    },
+    "ecu_firmware_version": {
+      "type": "string"
+    },
+    "ecu_mode": {
+      "type": "string",
+      "enum": [
+        "NORMAL",
+        "DIAGNOSTIC",
+        "SAFE",
+        "CALIBRATION"
+      ],
+      "default": "NORMAL"
+    },
+    "ecu_power_state": {
+      "type": "string",
+      "enum": [
+        "ON",
+        "OFF",
+        "SLEEP"
+      ],
+      "default": "ON"
+    },
+    "ecu_temperature_C": {
+      "type": "number",
+      "minimum": -40,
+      "maximum": 125
+    },
+    "hw_interface": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "CAN",
+          "CAN-FD",
+          "LIN",
+          "FlexRay",
+          "Ethernet",
+          "UART",
+          "SPI",
+          "I2C"
+        ]
+      }
+    },
+    "diagnostic_session": {
+      "type": "string",
+      "enum": [
+        "NONE",
+        "DEFAULT",
+        "EXTENDED"
+      ],
+      "default": "NONE"
+    },
+    "signal_list": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "type"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "protocol_id": {
+            "type": [
+              "string",
+              "integer"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "analog",
+              "digital"
+            ],
+            "default": "analog"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "min": {
+            "type": "number"
+          },
+          "max": {
+            "type": "number"
+          },
+          "initial": {
+            "type": [
+              "number",
+              "string",
+              "boolean"
+            ]
+          },
+          "behavior": {
+            "type": "string",
+            "enum": [
+              "static",
+              "step",
+              "ramp",
+              "sine",
+              "noise",
+              "random_walk",
+              "scripted"
+            ],
+            "default": "static"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sequence_script": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "time_ms",
+          "action"
+        ],
+        "properties": {
+          "time_ms": {
+            "type": "number",
+            "minimum": 0
+          },
+          "action": {
+            "type": "string"
+          },
+          "parameters": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "bus_config": {
+      "type": "object",
+      "properties": {
+        "bus_name": {
+          "type": "string"
+        },
+        "bus_type": {
+          "type": "string",
+          "enum": [
+            "CAN",
+            "CAN-FD",
+            "LIN",
+            "FlexRay",
+            "Ethernet"
+          ]
+        },
+        "bitrate_kbps": {
+          "type": "number",
+          "minimum": 1
+        },
+        "message_defs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": [
+                  "string",
+                  "integer"
+                ]
+              },
+              "name": {
+                "type": "string"
+              },
+              "period_ms": {
+                "type": "number",
+                "minimum": 0
+              },
+              "payload_schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "bus_load_pct": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 10
+        },
+        "message_jitter_ms": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "faults": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "fault_id",
+          "type",
+          "start_time_ms",
+          "duration_ms",
+          "target"
+        ],
+        "properties": {
+          "fault_id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "message_loss",
+              "tx_error",
+              "rx_error",
+              "bit_flip",
+              "bus_noise",
+              "short_circuit",
+              "sensor_spoof",
+              "sensor_dropout",
+              "actuator_stuck",
+              "soft_reboot",
+              "high_latency",
+              "packet_delay",
+              "packet_duplication"
+            ]
+          },
+          "target": {
+            "type": [
+              "string",
+              "integer"
+            ],
+            "description": "target message id or signal or module"
+          },
+          "start_time_ms": {
+            "type": "number",
+            "minimum": 0
+          },
+          "duration_ms": {
+            "type": "number",
+            "minimum": 0
+          },
+          "intensity": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "pattern": {
+            "type": "string",
+            "enum": [
+              "continuous",
+              "burst",
+              "periodic",
+              "random"
+            ],
+            "default": "continuous"
+          },
+          "repeat": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "environmental_perturbations": {
+      "type": "object",
+      "properties": {
+        "EMI_level": {
+          "type": "string",
+          "enum": [
+            "none",
+            "low",
+            "medium",
+            "high"
+          ],
+          "default": "none"
+        },
+        "temperature_ramp": {
+          "type": "object",
+          "properties": {
+            "start_C": {
+              "type": "number"
+            },
+            "end_C": {
+              "type": "number"
+            },
+            "rate_C_per_min": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "timing": {
+      "type": "object",
+      "properties": {
+        "test_duration_ms": {
+          "type": "number",
+          "minimum": 0,
+          "default": 60000
+        },
+        "time_resolution_ms": {
+          "type": "number",
+          "minimum": 1,
+          "default": 10
+        },
+        "repetitions": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        },
+        "inter_test_delay_ms": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1000
+        }
+      },
+      "additionalProperties": false
+    },
+    "safety": {
+      "type": "object",
+      "properties": {
+        "hazard_id": {
+          "type": "string"
+        },
+        "safety_goal": {
+          "type": "string"
+        },
+        "ASIL_level": {
+          "type": "string",
+          "enum": [
+            "QM",
+            "A",
+            "B",
+            "C",
+            "D"
+          ]
+        },
+        "risk_weight": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "recovery_behaviour_expected": {
+          "type": [
+            "boolean",
+            "object"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "assertions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "expr"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "STL",
+              "LTL",
+              "metric",
+              "boolean"
+            ],
+            "default": "metric"
+          },
+          "expr": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "warning",
+              "minor",
+              "major",
+              "critical"
+            ],
+            "default": "critical"
+          },
+          "time_window_ms": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "type": "number"
+              },
+              "to": {
+                "type": "number"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sweep_parameters": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "linear_range",
+              "geometric_range",
+              "enum_list",
+              "random_uniform",
+              "gaussian",
+              "latin_hypercube"
+            ],
+            "default": "fixed"
+          },
+          "from": {
+            "type": "number"
+          },
+          "to": {
+            "type": "number"
+          },
+          "step": {
+            "type": "number"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": [
+                "number",
+                "string"
+              ]
+            }
+          },
+          "mean": {
+            "type": "number"
+          },
+          "std": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "combinatorial_strategy": {
+      "type": "string",
+      "enum": [
+        "cartesian",
+        "pairwise",
+        "twise",
+        "random_sample",
+        "guided_by_search"
+      ],
+      "default": "cartesian"
+    },
+    "max_generated_scenarios": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 100
+    },
+    "selection_strategy": {
+      "type": "string",
+      "enum": [
+        "all",
+        "filter_by_constraints",
+        "search_select_topK"
+      ],
+      "default": "filter_by_constraints"
+    },
+    "search_algorithm": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": [
+            "none",
+            "GA",
+            "PSO",
+            "BayesianOpt",
+            "RandomForest-active",
+            "RL"
+          ],
+          "default": "none"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "reporting": {
+      "type": "object",
+      "properties": {
+        "log_level": {
+          "type": "string",
+          "enum": [
+            "ERROR",
+            "WARN",
+            "INFO",
+            "DEBUG"
+          ],
+          "default": "INFO"
+        },
+        "signals_to_record": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "telemetry_frequency_hz": {
+          "type": "number",
+          "minimum": 1
+        },
+        "trace_capture": {
+          "type": "boolean",
+          "default": false
+        },
+        "report_format": {
+          "type": "string",
+          "enum": [
+            "HTML",
+            "JSON",
+            "CSV",
+            "PDF"
+          ],
+          "default": "HTML"
+        },
+        "save_artifacts": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "execution": {
+      "type": "object",
+      "properties": {
+        "target_runner": {
+          "type": "string",
+          "enum": [
+            "CARLA",
+            "SVL",
+            "SIL_runner",
+            "HIL_bench",
+            "pytest_harness"
+          ],
+          "default": "CARLA"
+        },
+        "ci_webhook_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "docker_image": {
+          "type": "string"
+        },
+        "timeout_ms": {
+          "type": "number",
+          "minimum": 0,
+          "default": 600000
+        }
+      },
+      "additionalProperties": false
+    },
+    "advanced": {
+      "type": "object",
+      "properties": {
+        "constraint_expressions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dependency_graph": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "seed_dataset_link": {
+          "type": "string",
+          "format": "uri"
+        },
+        "provenance": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "ecu_catalog_entry": {
+      "type": "object",
+      "properties": {
+        "ecu_id": {
+          "type": "string"
+        },
+        "ecu_name": {
+          "type": "string"
+        },
+        "manufacturer": {
+          "type": "string"
+        },
+        "supported_interfaces": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "min_operational_voltage": {
+          "type": "number"
+        },
+        "max_operational_voltage": {
+          "type": "number"
+        },
+        "supported_modes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "firmware_versions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "default_assertions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "calibration_requirements": {
+          "type": "string"
+        },
+        "certification_level": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "initial_conditions": {
+            "properties": {
+              "engine_state": {
+                "const": "OFF"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "not": {
+          "properties": {
+            "initial_conditions": {
+              "properties": {
+                "vehicle_speed_mps": {
+                  "minimum": 1e-06
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "target_execution": {
+            "const": "HIL"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "execution": {
+            "properties": {
+              "target_runner": {
+                "enum": [
+                  "HIL_bench"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "timeWindow": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "type": "number",
+          "minimum": 0
+        },
+        "to": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "from",
+        "to"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

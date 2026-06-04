@@ -1,0 +1,68 @@
+{
+  "profileId": "safety-critical-asil-b",
+  "name": "Safety Critical — ASIL B",
+  "description": "ASIL B safety scenario. Requires hazard linkage and at least one major-severity assertion; suitable for SIL/HIL execution.",
+  "defaultParameters": {
+    "priority": "high",
+    "version": "1.0",
+
+    "initialConditions.ambientTemperatureC": 20,
+    "initialConditions.batteryVoltageV": 12.6,
+    "initialConditions.engineState": "RUNNING",
+    "initialConditions.fuelLevelPercent": 90,
+    "initialConditions.vehicleSpeedMps": 20.0,
+    "initialConditions.gearPosition": "D",
+    "initialConditions.ignitionKey": "ON",
+    "initialConditions.ambientHumidityPct": 50,
+    "initialConditions.gpsFixQuality": "GOOD",
+    "initialConditions.localizationErrorM": 0.1,
+
+    "ecuId": "CHASSIS-ECU-001",
+    "ecuMode": "NORMAL",
+    "ecuTemperatureC": 25,
+    "ecuPowerState": "ON",
+    "hwInterface": ["CAN", "CAN-FD"],
+    "diagnosticSession": "NONE",
+
+    "targetExecution": "SIL",
+
+    "asilLevel": "B",
+    "hazardId": "HAZ-B-001",
+    "safetyGoal": "Prevent loss of lateral stability assistance",
+    "safety.riskWeight": 0.5,
+    "safety.recoveryBehaviourExpected": true,
+
+    "assertions[0].id": "A1",
+    "assertions[0].type": "metric",
+    "assertions[0].expr": "stability_assist_active == true",
+    "assertions[0].severity": "major",
+
+    "bus.busName": "ChassisCAN",
+    "bus.busType": "CAN-FD",
+    "bus.bitrateKbps": 2000,
+    "bus.busLoadPct": 30,
+    "bus.messageJitterMs": 1,
+
+    "testDurationMs": 60000,
+    "timeResolutionMs": 5,
+    "timing.repetitions": 1,
+    "timing.interTestDelayMs": 1000,
+
+    "reporting.format": "JSON",
+    "reporting.logLevel": "INFO",
+    "reporting.telemetryFrequencyHz": 50,
+    "reporting.traceCapture": true,
+    "reporting.saveArtifacts": true,
+
+    "execution.targetRunner": "SIL_runner",
+    "execution.timeoutMs": 180000
+  },
+  "lockedParameters": [
+    "asilLevel"
+  ],
+  "recommendedAssertions": [
+    "stability_assist_active",
+    "no_safety_goal_violation",
+    "failsafe_within_200ms"
+  ]
+}

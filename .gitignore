@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# JetBrains
+.idea/
+
+# VS Code
+.vscode/
+
+# Build outputs
+**/bin/
+**/obj/
+
+# Logs
+*.log

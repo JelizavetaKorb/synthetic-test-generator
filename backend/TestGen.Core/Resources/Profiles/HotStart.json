@@ -1,0 +1,97 @@
+{
+  "profileId": "hot-start",
+  "name": "Hot Start",
+  "description": "Engine hot-start test: ECU restart after thermal soak. Validates startup behaviour at elevated under-hood temperatures, fuel vapour handling, and post-soak sensor stability.",
+  "defaultParameters": {
+    "priority": "medium",
+    "version": "1.0",
+
+    "initialConditions.ambientTemperatureC": 40,
+    "initialConditions.batteryVoltageV": 12.4,
+    "initialConditions.engineState": "OFF",
+    "initialConditions.fuelLevelPercent": 60,
+    "initialConditions.vehicleSpeedMps": 0,
+    "initialConditions.gearPosition": "P",
+    "initialConditions.ignitionKey": "OFF",
+    "initialConditions.ambientHumidityPct": 70,
+    "initialConditions.gpsFixQuality": "GOOD",
+    "initialConditions.localizationErrorM": 0.1,
+
+    "ecuId": "ENGINE-ECU-001",
+    "ecuMode": "NORMAL",
+    "ecuTemperatureC": 85,
+    "ecuFirmwareVersion": "2.4.1",
+    "ecuPowerState": "OFF",
+    "hwInterface": ["CAN"],
+    "diagnosticSession": "NONE",
+
+    "targetExecution": "simulation",
+
+    "bus.busName": "PowertrainCAN",
+    "bus.busType": "CAN",
+    "bus.bitrateKbps": 500,
+    "bus.busLoadPct": 12,
+    "bus.messageJitterMs": 0,
+
+    "signalList": [
+      {
+        "name": "engine_rpm",
+        "type": "analog",
+        "protocolId": "0x100",
+        "unit": "rpm",
+        "min": 0,
+        "max": 8000,
+        "initial": 0,
+        "behavior": "static"
+      },
+      {
+        "name": "coolant_temp",
+        "type": "analog",
+        "protocolId": "0x101",
+        "unit": "C",
+        "min": -40,
+        "max": 150,
+        "initial": 85,
+        "behavior": "static"
+      },
+      {
+        "name": "intake_air_temp",
+        "type": "analog",
+        "protocolId": "0x102",
+        "unit": "C",
+        "min": -40,
+        "max": 120,
+        "initial": 60,
+        "behavior": "static"
+      }
+    ],
+
+    "testDurationMs": 30000,
+    "timeResolutionMs": 10,
+    "timing.repetitions": 1,
+    "timing.interTestDelayMs": 1000,
+
+    "reporting.format": "JSON",
+    "reporting.logLevel": "INFO",
+    "reporting.telemetryFrequencyHz": 20,
+    "reporting.traceCapture": false,
+    "reporting.saveArtifacts": true,
+
+    "execution.targetRunner": "SIL_runner",
+    "execution.timeoutMs": 120000
+  },
+  "lockedParameters": [
+    "initialConditions.engineState",
+    "initialConditions.vehicleSpeedMps",
+    "initialConditions.gearPosition",
+    "initialConditions.ignitionKey",
+    "ecuPowerState"
+  ],
+  "recommendedAssertions": [
+    "startupTimeMs < 4000",
+    "no_vapour_lock_dtc_set",
+    "coolantTempC stable within 5C of soak temperature",
+    "noFaultCodesOnBoot",
+    "engineRpmStable after warmup"
+  ]
+}

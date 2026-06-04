@@ -1,0 +1,72 @@
+{
+  "profileId": "safety-critical-asil-c",
+  "name": "Safety Critical — ASIL C",
+  "description": "ASIL C safety scenario. Requires hazard linkage, at least one critical-severity assertion, and execution on HIL or lab (simulation-only will emit a warning).",
+  "defaultParameters": {
+    "priority": "high",
+    "version": "1.0",
+
+    "initialConditions.ambientTemperatureC": 20,
+    "initialConditions.batteryVoltageV": 12.6,
+    "initialConditions.engineState": "RUNNING",
+    "initialConditions.fuelLevelPercent": 90,
+    "initialConditions.vehicleSpeedMps": 25.0,
+    "initialConditions.gearPosition": "D",
+    "initialConditions.ignitionKey": "ON",
+    "initialConditions.ambientHumidityPct": 50,
+    "initialConditions.gpsFixQuality": "EXCELLENT",
+    "initialConditions.localizationErrorM": 0.05,
+
+    "ecuId": "ADAS-ECU-001",
+    "ecuMode": "NORMAL",
+    "ecuTemperatureC": 25,
+    "ecuPowerState": "ON",
+    "hwInterface": ["CAN-FD", "Ethernet"],
+    "diagnosticSession": "NONE",
+
+    "targetExecution": "HIL",
+
+    "asilLevel": "C",
+    "hazardId": "HAZ-C-001",
+    "safetyGoal": "Prevent unintended lane departure intervention",
+    "safety.riskWeight": 0.75,
+    "safety.recoveryBehaviourExpected": true,
+
+    "assertions[0].id": "A1",
+    "assertions[0].type": "STL",
+    "assertions[0].expr": "G[0,60](abs(steering_torque) < 4.0)",
+    "assertions[0].severity": "critical",
+    "assertions[0].timeWindowMs.from": 0,
+    "assertions[0].timeWindowMs.to": 60000,
+
+    "bus.busName": "ADASCAN",
+    "bus.busType": "CAN-FD",
+    "bus.bitrateKbps": 2000,
+    "bus.busLoadPct": 35,
+    "bus.messageJitterMs": 1,
+
+    "testDurationMs": 60000,
+    "timeResolutionMs": 2,
+    "timing.repetitions": 1,
+    "timing.interTestDelayMs": 1000,
+
+    "reporting.format": "JSON",
+    "reporting.logLevel": "INFO",
+    "reporting.telemetryFrequencyHz": 100,
+    "reporting.traceCapture": true,
+    "reporting.saveArtifacts": true,
+
+    "execution.targetRunner": "HIL_bench",
+    "execution.timeoutMs": 180000
+  },
+  "lockedParameters": [
+    "asilLevel",
+    "targetExecution",
+    "execution.targetRunner"
+  ],
+  "recommendedAssertions": [
+    "no_unintended_intervention",
+    "failsafe_within_100ms",
+    "dtc_logged_on_safety_violation"
+  ]
+}

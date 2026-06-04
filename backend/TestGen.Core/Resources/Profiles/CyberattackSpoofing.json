@@ -1,0 +1,85 @@
+{
+  "profileId": "cyberattack-spoofing",
+  "name": "Cyberattack — Spoofing",
+  "description": "Bus-level spoofing attack: a malicious node injects forged frames for a sensor signal. Validates intrusion detection, plausibility checks, and degraded-mode behaviour.",
+  "defaultParameters": {
+    "priority": "high",
+    "version": "1.0",
+
+    "initialConditions.ambientTemperatureC": 25,
+    "initialConditions.batteryVoltageV": 12.6,
+    "initialConditions.engineState": "RUNNING",
+    "initialConditions.fuelLevelPercent": 75,
+    "initialConditions.vehicleSpeedMps": 20.0,
+    "initialConditions.gearPosition": "D",
+    "initialConditions.ignitionKey": "ON",
+    "initialConditions.ambientHumidityPct": 50,
+    "initialConditions.gpsFixQuality": "GOOD",
+    "initialConditions.localizationErrorM": 0.1,
+
+    "ecuId": "ADAS-ECU-001",
+    "ecuMode": "NORMAL",
+    "ecuTemperatureC": 25,
+    "ecuPowerState": "ON",
+    "hwInterface": ["CAN", "CAN-FD"],
+    "diagnosticSession": "NONE",
+
+    "targetExecution": "HIL",
+
+    "bus.busName": "ChassisCAN",
+    "bus.busType": "CAN",
+    "bus.bitrateKbps": 500,
+    "bus.busLoadPct": 40,
+    "bus.messageJitterMs": 2,
+
+    "signalList": [
+      {
+        "name": "wheel_speed",
+        "type": "analog",
+        "protocolId": "0x210",
+        "unit": "mps",
+        "min": 0,
+        "max": 70,
+        "initial": 20,
+        "behavior": "static"
+      }
+    ],
+
+    "faults": [
+      {
+        "faultId": "spoof-1",
+        "type": "sensor_spoof",
+        "target": "wheel_speed",
+        "startTimeMs": 2000,
+        "durationMs": 5000,
+        "intensity": 0.8,
+        "pattern": "continuous",
+        "repeat": 0
+      }
+    ],
+
+    "testDurationMs": 15000,
+    "timeResolutionMs": 5,
+    "timing.repetitions": 1,
+    "timing.interTestDelayMs": 1000,
+
+    "reporting.format": "JSON",
+    "reporting.logLevel": "INFO",
+    "reporting.telemetryFrequencyHz": 50,
+    "reporting.traceCapture": true,
+    "reporting.saveArtifacts": true,
+
+    "execution.targetRunner": "HIL_bench",
+    "execution.timeoutMs": 120000
+  },
+  "lockedParameters": [
+    "targetExecution",
+    "execution.targetRunner"
+  ],
+  "recommendedAssertions": [
+    "intrusion_detected_within_500ms",
+    "plausibility_check_rejects_spoofed_signal",
+    "ecu_enters_degraded_mode_on_attack",
+    "dtc_logged_for_security_event"
+  ]
+}
