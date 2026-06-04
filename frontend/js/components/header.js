@@ -7,6 +7,7 @@ import { hideResults } from './results-panel.js';
 
 let profilesCache = [];
 
+// fetches the ECU catalog and populates the select, with retry on click after failure
 function loadEcuCatalog(selectEl) {
 
   const loadingOpt = document.createElement('option');
@@ -37,6 +38,7 @@ function loadEcuCatalog(selectEl) {
       if (current && ecus.some(e => e.ecuId === current)) {
         selectEl.value = current;
         handleEcuChange(selectEl);
+    // auto-select when there is exactly one ECU in the catalog
       } else if (ecus.length === 1) {
 
         selectEl.value = ecus[0].ecuId;
@@ -68,6 +70,7 @@ function loadEcuCatalog(selectEl) {
     });
 }
 
+// updates state with the selected ECU id and catalog entry
 function handleEcuChange(selectEl) {
   const ecuId = selectEl.value;
   setState('ecu_id', ecuId);
@@ -85,6 +88,7 @@ function handleTestTypeChange(selectEl) {
   document.dispatchEvent(new CustomEvent('rerender-editor'));
 }
 
+// fetches available profiles and populates the select, with retry on click after failure
 function loadProfiles(selectEl) {
   const loadingOpt = document.createElement('option');
   loadingOpt.disabled = true;
@@ -122,6 +126,7 @@ function loadProfiles(selectEl) {
     });
 }
 
+// applies profile defaults, locks profile-locked fields and stores recommended assertions
 function handleProfileChange(selectEl) {
   const id = selectEl.value;
   if (!id) {
@@ -194,6 +199,7 @@ export function render(container) {
 
   const controls = createElement('div', { class: 'header-controls' });
 
+  // groups a label and select into a single flex div so they never wrap apart
   function makePair(label, select) {
     const pair = createElement('div', { class: 'header-control-pair' });
     pair.appendChild(label);

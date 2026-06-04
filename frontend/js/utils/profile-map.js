@@ -1,3 +1,4 @@
+// maps snake_case UI state paths to camelCase backend parameter keys
 export const STATE_TO_BACKEND = {
   'ecu_id':                                         'ecuId',
   'ecu_firmware_version':                           'ecuFirmwareVersion',
@@ -43,6 +44,7 @@ export const STATE_TO_BACKEND = {
   'execution.timeout_ms':                           'execution.timeoutMs',
 };
 
+// inverted map used when applying profile defaults back into state
 export const BACKEND_TO_STATE = Object.fromEntries(
   Object.entries(STATE_TO_BACKEND).map(([statePath, backendKey]) => [backendKey, statePath])
 );

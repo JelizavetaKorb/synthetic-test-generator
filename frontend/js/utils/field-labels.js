@@ -1,4 +1,5 @@
 
+// static map from state paths to human readable display labels
 export const FIELD_LABELS = {
 
   'name': 'Scenario name',
@@ -59,6 +60,7 @@ export const FIELD_LABELS = {
   'execution.timeout_ms': 'Timeout (ms)',
 };
 
+// regex patterns for indexed paths like faults.2.target
 const ARRAY_LABEL_PATTERNS = [
   [/^faults\.(\d+)\.(.+)$/, (m) => `Fault #${+m[1] + 1}: ${humanizeKey(m[2])}`],
   [/^signal_list\.(\d+)\.(.+)$/, (m) => `Signal #${+m[1] + 1}: ${humanizeKey(m[2])}`],
@@ -78,6 +80,7 @@ function humanizeKey(key) {
     .replace(/\bPct\b/g, '(%)');
 }
 
+// converts an enum value string to a readable label, preserving uppercase abbreviations joined by dashes
 export function humanizeValue(v) {
   if (v === null || v === undefined) return '';
   const s = String(v);
@@ -86,6 +89,7 @@ export function humanizeValue(v) {
     .split('_')
     .flatMap(piece => {
 
+      // keep the dash if both neighbors are uppercase (e.g. CAN-FD) otherwise replace with a space
       const deDashed = piece.replace(/-/g, (m, offset, str) => {
         const before = str[offset - 1];
         const after  = str[offset + 1];
@@ -99,6 +103,7 @@ export function humanizeValue(v) {
     .join(' ');
 }
 
+// tries the static map, then regex patterns, then falls back to camelCase conversion
 export function labelFor(field) {
   if (!field) return '';
   if (FIELD_LABELS[field]) return FIELD_LABELS[field];

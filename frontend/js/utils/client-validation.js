@@ -30,8 +30,10 @@ const REQUIRED_TEXT_FIELDS = [
   ['target_execution', 'Choose where the scenario will run (simulation, SIL, HIL, bench, lab).'],
 ];
 
+// cartesian sweeps above this size are blocked to prevent browser hangs
 const CARTESIAN_BLOCK_THRESHOLD = 10_000;
 
+// checks that name, ecu_id and target_execution are present
 function checkRequiredFields(s, issues) {
   REQUIRED_TEXT_FIELDS.forEach(([path, hint]) => {
     const v = getByPath(s, path);
@@ -46,6 +48,7 @@ function checkRequiredFields(s, issues) {
   });
 }
 
+// validates all numeric sensor fields against their allowed min/max bounds
 function checkRanges(s, issues) {
   Object.entries(FIELD_RANGES).forEach(([path, [min, max, unit]]) => {
     const v = getByPath(s, path);
@@ -73,6 +76,7 @@ function checkRanges(s, issues) {
   });
 }
 
+// checks engine state, speed, gear and ignition for logical consistency
 function checkInitialConditions(s, issues) {
   const eng = s.initial_conditions?.engine_state;
   const speed = Number(s.initial_conditions?.vehicle_speed_mps ?? 0);
@@ -126,6 +130,7 @@ function checkInitialConditions(s, issues) {
   }
 }
 
+// checks battery voltage against the ECU catalog minimum operational voltage
 function checkBattery(s, issues) {
   const v = Number(s.initial_conditions?.battery_voltage_V ?? NaN);
   if (Number.isNaN(v)) return;
@@ -142,6 +147,7 @@ function checkBattery(s, issues) {
   }
 }
 
+// checks bitrate for known protocols and validates message IDs for duplicates
 function checkBus(s, issues) {
   const bus = s.bus_config || {};
   const type = bus.bus_type;
@@ -197,6 +203,7 @@ function checkBus(s, issues) {
   });
 }
 
+// checks signal names for duplicates and validates min/max ordering
 function checkSignals(s, issues) {
   const seen = new Map();
   (s.signal_list || []).forEach((sig, i) => {
@@ -225,6 +232,7 @@ function checkSignals(s, issues) {
   });
 }
 
+// checks fault targets exist, that timing is in bounds and intensity is between 0 and 1
 function checkFaults(s, issues) {
   const duration = Number(s.timing?.test_duration_ms ?? 0);
   const signalNames = new Set((s.signal_list || []).map(x => x.name).filter(Boolean));
@@ -279,6 +287,7 @@ function checkFaults(s, issues) {
   });
 }
 
+// checks assertions have non-empty expressions and valid time windows
 function checkAssertions(s, issues) {
   const duration = Number(s.timing?.test_duration_ms ?? 0);
   (s.assertions || []).forEach((a, i) => {
@@ -309,6 +318,7 @@ function checkAssertions(s, issues) {
   });
 }
 
+// checks that test duration is positive and resolution does not exceed duration
 function checkTiming(s, issues) {
   const duration = Number(s.timing?.test_duration_ms ?? 0);
   const resolution = Number(s.timing?.time_resolution_ms ?? 0);
@@ -329,6 +339,7 @@ function checkTiming(s, issues) {
   }
 }
 
+// checks ASIL level requirements for HIL execution, hazard ID and formal assertions
 function checkSafety(s, issues) {
   const asil = s.safety?.ASIL_level;
   const exec = s.target_execution;
@@ -370,6 +381,7 @@ function checkSafety(s, issues) {
   }
 }
 
+// validates each sweep spec and blocks cartesian strategies that would produce too many combinations
 function checkSweep(s, issues) {
   const sweeps = Object.entries(s.sweep_parameters || {});
   if (!sweeps.length) return;
@@ -440,6 +452,7 @@ function checkSweep(s, issues) {
   }
 }
 
+// estimates how many values a single sweep axis will produce for explosion checks
 function estimateSweepSize(cfg) {
   if (!cfg) return 1;
   switch (cfg.type) {
@@ -459,6 +472,7 @@ function estimateSweepSize(cfg) {
   }
 }
 
+// checks that HIL target execution has the correct HIL_bench runner configured
 function checkExecution(s, issues) {
 
   if (s.target_execution === 'HIL') {

@@ -6,6 +6,7 @@ import { showIssues, clearIssues, clearFieldErrors } from './validation-panel.js
 import { showResults, hideResults } from './results-panel.js';
 import { runClientValidation } from '../utils/client-validation.js';
 
+// applies one or more suggested fix objects to state
 function applySuggestedFix(fix) {
   if (!fix) return;
   const fixes = Array.isArray(fix) ? fix : [fix];
@@ -16,6 +17,7 @@ function applySuggestedFix(fix) {
   });
 }
 
+// assembles the POST body from current state for the generate endpoint
 function buildGenerateBody() {
   const s = getFullState();
   return {
@@ -28,6 +30,7 @@ function buildGenerateBody() {
   };
 }
 
+// runs client validation then calls the backend and routes the result to the correct panel
 async function handleGenerate(btn, allowWarnings) {
   clearFieldErrors();
   btn.disabled = true;

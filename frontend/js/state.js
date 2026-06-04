@@ -125,6 +125,7 @@ export function resetState() {
   notify();
 }
 
+// writes a value to a dot-separated path inside the state object
 export function setState(path, value) {
   const parts = path.split('.');
   let obj = state;
@@ -156,6 +157,7 @@ export function subscribe(callback) {
   subscribers.push(callback);
 }
 
+// fires all subscribers with a deep copy of the current state
 export function notify() {
   subscribers.forEach(cb => cb(getFullState()));
 }
@@ -174,6 +176,7 @@ export function isFieldLocked(path) {
   return lockedFields.includes(path);
 }
 
+// keys that belong only to the UI and should never reach the backend
 const FLATTEN_SKIP = new Set([
   'profile', 'recommended_assertions', 'scenario_id', 'created_at',
   'sweep_parameters', 'combinatorial_strategy', 'max_generated_scenarios',
@@ -184,6 +187,7 @@ const FLATTEN_SKIP = new Set([
   'integration_test_params',
 ]);
 
+// maps snake_case state paths to camelCase backend keys for plain arrays
 const LIST_KEY_MAP = {
   'sequence_script': 'sequenceScript',
   'event_triggers':  'eventTriggers',
@@ -194,16 +198,19 @@ const LIST_KEY_MAP = {
   'reporting.signals_to_record': 'signalsToRecord'
 };
 
+// lists that get flattened using bracket notation like faults[0].field
 const BRACKET_FLATTEN_LISTS = {
   'faults':      'faults',
   'assertions':  'assertions',
   'signal_list': 'signalList'
 };
 
+// converts snake_case keys to camelCase for the backend
 function snakeToCamel(s) {
   return s.replace(/_([a-zA-Z])/g, (_, c) => c.toUpperCase());
 }
 
+// recursively walks an object and writes dot-path entries with bracket prefix
 function flattenObjectIntoBracket(obj, prefix, out) {
   if (obj === null || obj === undefined) return;
   if (Array.isArray(obj)) {
@@ -221,6 +228,7 @@ function flattenObjectIntoBracket(obj, prefix, out) {
   out[prefix] = obj;
 }
 
+// produces a flat key-value dict of all non-skipped state fields for the backend
 export function flattenStateToOverrides() {
   const result = {};
   function walk(val, path) {

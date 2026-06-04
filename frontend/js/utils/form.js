@@ -1,6 +1,7 @@
 import { getState, setState, isFieldLocked } from '../state.js';
 import { humanizeValue } from './field-labels.js';
 
+// accepts a plain string or a {value, label} object and normalizes to the latter
 function normalizeOption(opt) {
   if (opt && typeof opt === 'object' && 'value' in opt) {
     return { value: opt.value, label: opt.label ?? humanizeValue(opt.value) };
@@ -8,6 +9,7 @@ function normalizeOption(opt) {
   return { value: opt, label: humanizeValue(opt) };
 }
 
+// builds a labeled form field of the appropriate input type and syncs it to state
 export function createField(config) {
   const { label, path, type, unit, min, max, step, options, required, defaultValue } = config;
   const wrapper = document.createElement('div');
@@ -58,7 +60,8 @@ export function createField(config) {
   input.setAttribute('data-field', path);
   if (required) input.required = true;
   if (locked) input.disabled = true;
-  if (unit) {
+    // wrap with unit label when a unit string is provided
+    if (unit) {
     const inputRow = document.createElement('div');
     inputRow.className = 'input-row';
     inputRow.appendChild(input);
@@ -73,6 +76,7 @@ export function createField(config) {
   return wrapper;
 }
 
+// builds a multi-checkbox group where selections are synced to a state array
 export function createCheckboxGroup(config) {
   const { label, path, options } = config;
   const wrapper = document.createElement('div');
@@ -106,6 +110,7 @@ export function createCheckboxGroup(config) {
   return wrapper;
 }
 
+// renders an add/remove list where each item uses a custom render callback
 export function createDynamicList(config) {
   const { path, label, addLabel, defaultItem, renderItem } = config;
   const container = document.createElement('div');
@@ -117,7 +122,8 @@ export function createDynamicList(config) {
   const listEl = document.createElement('div');
   listEl.className = 'dynamic-list-items';
   container.appendChild(listEl);
-  function renderList() {
+    // re-renders the whole list after any item change or removal
+    function renderList() {
     listEl.innerHTML = '';
     const items = getState(path) || [];
     items.forEach((item, index) => {
