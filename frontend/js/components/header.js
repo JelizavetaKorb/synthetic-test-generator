@@ -195,7 +195,19 @@ export function render(container) {
   resetBtn.addEventListener('click', () => handleReset(ecuSelect, testTypeSelect, profileSelect));
 
   const controls = createElement('div', { class: 'header-controls' });
-  [ecuLabel, ecuSelect, testTypeLabel, testTypeSelect, profileLabel, profileSelect, resetBtn].forEach(el => controls.appendChild(el));
+
+  // Wrap each label+select as a paired unit so they never wrap apart.
+  function makePair(label, select) {
+    const pair = createElement('div', { class: 'header-control-pair' });
+    pair.appendChild(label);
+    pair.appendChild(select);
+    return pair;
+  }
+
+  controls.appendChild(makePair(ecuLabel, ecuSelect));
+  controls.appendChild(makePair(testTypeLabel, testTypeSelect));
+  controls.appendChild(makePair(profileLabel, profileSelect));
+  controls.appendChild(resetBtn);
 
   header.appendChild(title);
   header.appendChild(controls);

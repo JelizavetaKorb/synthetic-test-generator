@@ -88,14 +88,15 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  padding: 18px 32px;
+  gap: 12px;
+  padding: 14px 32px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 30;
   box-shadow: var(--shadow-xs);
+  flex-wrap: wrap;
 }
 
 .app-title {
@@ -104,14 +105,22 @@ body {
   letter-spacing: -0.01em;
   color: var(--text);
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .header-controls {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+.header-control-pair {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 1;
 }
 
 .header-controls label {
@@ -120,7 +129,7 @@ body {
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  margin-right: -6px;
+  white-space: nowrap;
 }
 
 /* ------------------------------------------------------------------
@@ -414,7 +423,9 @@ select:disabled {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23bcb8af' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
 }
 
-.header-select { min-width: 180px; }
+/* Header select: beat the global `select { width: 100% }` with an
+   element+class selector (higher specificity). */
+select.header-select { width: 130px; min-width: 0; }
 
 input[type='checkbox'],
 input[type='radio'] {
