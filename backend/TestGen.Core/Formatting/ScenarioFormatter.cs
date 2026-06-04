@@ -66,9 +66,17 @@ public sealed class ScenarioFormatter : IScenarioFormatter
             ["reporting.captureSignals"]                 = "signals_to_record",
             ["signalsToRecord"]                           = "signals_to_record",
 
-            ["environmental_perturbations.temperature_ramp.start_c"]       = "temperature_ramp.start_C",
-            ["environmental_perturbations.temperature_ramp.end_c"]         = "temperature_ramp.end_C",
+            // Frontend sends snake_case-with-uppercase-units (matching the schema). The
+            // key is matched case-sensitively, so list both the lowercase form (defensive)
+            // and the actual incoming form to guarantee a hit.
+            ["environmental_perturbations.temperature_ramp.start_C"]        = "temperature_ramp.start_C",
+            ["environmental_perturbations.temperature_ramp.end_C"]          = "temperature_ramp.end_C",
+            ["environmental_perturbations.temperature_ramp.rate_C_per_min"] = "temperature_ramp.rate_C_per_min",
+            ["environmental_perturbations.temperature_ramp.start_c"]        = "temperature_ramp.start_C",
+            ["environmental_perturbations.temperature_ramp.end_c"]          = "temperature_ramp.end_C",
             ["environmental_perturbations.temperature_ramp.rate_c_per_min"] = "temperature_ramp.rate_C_per_min",
+            ["environmental_perturbations.EMI_level"]                       = "EMI_level",
+            ["environmental_perturbations.emi_level"]                       = "EMI_level",
             ["reporting.captureDtcs"]                    = "capture_dtcs",
             ["reporting.format"]                         = "report_format",
             ["reporting.logLevel"]                       = "log_level",

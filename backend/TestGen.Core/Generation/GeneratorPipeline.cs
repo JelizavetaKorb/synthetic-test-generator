@@ -188,6 +188,72 @@ public sealed class GeneratorPipeline
     private static ValidationIssue SweepError(string key, string code, string message) =>
         new() { Severity = "error", Code = code, Field = key, Message = message };
 
+    /// <summary>
+    /// Maps a bare sweep parameter name (as typed by the user in the UI, e.g.
+    /// "battery_voltage_V") to the dotted path the formatter expects, so the
+    /// swept value is placed inside the correct nested section rather than
+    /// emitted as a top-level key on the scenario.
+    /// </summary>
+    /// <summary>
+    /// Routes bare sweep parameter names to the dotted camelCase keys that the
+    /// ScenarioFormatter's dedicated section loops expect (e.g.
+    /// "initialConditions.batteryVoltageV" is handled by the initial_conditions
+    /// loop, "busLoadPct" by BusFlatKeys, etc.).
+    /// Keys that already contain a '.' are passed through unchanged so users
+    /// can still target arbitrary dotted paths.
+    /// </summary>
+    private static readonly Dictionary<string, string> SweepKeyRoutes =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            // initial_conditions — route to camelCase so the formatter's
+            // "initialConditions." prefix check fires correctly.
+            ["battery_voltage_V"]      = "initialConditions.batteryVoltageV",
+            ["ambient_temperature_C"]  = "initialConditions.ambientTemperatureC",
+            ["engine_state"]           = "initialConditions.engineState",
+            ["fuel_level_percent"]     = "initialConditions.fuelLevelPercent",
+            ["vehicle_speed_mps"]      = "initialConditions.vehicleSpeedMps",
+            ["gear_position"]          = "initialConditions.gearPosition",
+            ["ignition_key"]           = "initialConditions.ignitionKey",
+            ["ambient_humidity_pct"]   = "initialConditions.ambientHumidityPct",
+            ["gps_fix_quality"]        = "initialConditions.gpsFixQuality",
+            ["localization_error_m"]   = "initialConditions.localizationErrorM",
+            // timing — testDurationMs / timeResolutionMs are in TimingFlatKeys;
+            // others use the "timing." prefix loop.
+            ["test_duration_ms"]        = "testDurationMs",
+            ["time_resolution_ms"]      = "timeResolutionMs",
+            ["startup_timeout_ms"]      = "timing.startupTimeoutMs",
+            ["warmup_duration_s"]       = "timing.warmupDurationS",
+            ["measurement_interval_ms"] = "timing.measurementIntervalMs",
+            ["repetitions"]             = "timing.repetitions",
+            ["inter_test_delay_ms"]     = "timing.interTestDelayMs",
+            // bus_config — bare keys matched by BusFlatKeys
+            ["bus_load_pct"]            = "busLoadPct",
+            ["message_jitter_ms"]       = "messageJitterMs",
+            ["bitrate_kbps"]            = "bitrateKbps",
+            // reporting — use the "reporting." prefix
+            ["telemetry_frequency_hz"]  = "reporting.telemetryFrequencyHz",
+            ["log_level"]               = "reporting.logLevel",
+            // environmental_perturbations — handled by the generic dotted-key
+            // loop in the formatter; keep snake_case since KeyMap has these.
+            ["EMI_level"]                 = "environmental_perturbations.EMI_level",
+            ["temperature_ramp.start_C"]  = "environmental_perturbations.temperature_ramp.start_C",
+            ["temperature_ramp.end_C"]    = "environmental_perturbations.temperature_ramp.end_C",
+            ["temperature_ramp.rate_C_per_min"]
+                                           = "environmental_perturbations.temperature_ramp.rate_C_per_min",
+        };
+
+    /// <summary>
+    /// Translates a sweep parameter name to its nested path so the formatter
+    /// places it in the correct schema section. Unknown names are returned
+    /// unchanged so users can still target arbitrary paths by typing the
+    /// full dotted form themselves.
+    /// </summary>
+    private static string RouteSweepKey(string key)
+    {
+        if (key.Contains('.')) return key;
+        return SweepKeyRoutes.TryGetValue(key, out var routed) ? routed : key;
+    }
+
     public GenerateResult MaterializeAndFilter(
         Profile                                            profile,
         Dictionary<string, object>                        baseParameters,
@@ -202,7 +268,7 @@ public sealed class GeneratorPipeline
             index++;
             var parameters = new Dictionary<string, object>(baseParameters);
             foreach (var (k, v) in combination)
-                parameters[k] = v;
+                parameters[RouteSweepKey(k)] = v;
 
             var candidate = new Scenario
             {

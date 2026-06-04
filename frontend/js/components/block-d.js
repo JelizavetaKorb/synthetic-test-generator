@@ -9,8 +9,14 @@ function renderMsgItem(item, idx, updateFn, removeFn) {
     const inp = document.createElement('input'); inp.type = type === 'number' ? 'number' : 'text'; inp.value = item[key] ?? '';
     if (type === 'number') { inp.min = 0; inp.addEventListener('input', () => updateFn(key, inp.value === '' ? null : parseFloat(inp.value))); }
     else inp.addEventListener('input', () => updateFn(key, inp.value));
-    inp.setAttribute('data-field', `bus_config.message_defs.${idx}.${key}`); w.appendChild(inp);
-    if (unit) w.appendChild(Object.assign(document.createElement('span'), { textContent: ' ' + unit }));
+    inp.setAttribute('data-field', `bus_config.message_defs.${idx}.${key}`);
+    if (unit) {
+      const ir = document.createElement('div'); ir.className = 'input-row'; ir.appendChild(inp);
+      ir.appendChild(Object.assign(document.createElement('span'), { className: 'field-unit', textContent: unit }));
+      w.appendChild(ir);
+    } else {
+      w.appendChild(inp);
+    }
     row.appendChild(w);
   });
   const paW = document.createElement('div'); paW.className = 'field-wrapper';

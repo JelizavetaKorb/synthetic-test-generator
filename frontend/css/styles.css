@@ -443,10 +443,21 @@ input[type='radio'] {
 }
 
 .field-unit {
-  display: inline-block;
-  margin-top: 4px;
   font-size: 12px;
   color: var(--text-subtle);
+  white-space: nowrap;
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.input-row input,
+.input-row select {
+  flex: 1;
+  min-width: 0;
 }
 
 .checkbox-group-options {

@@ -61,12 +61,17 @@ export function createField(config) {
   input.setAttribute('data-field', path);
   if (required) input.required = true;
   if (locked) input.disabled = true;
-  wrapper.appendChild(input);
   if (unit) {
+    const inputRow = document.createElement('div');
+    inputRow.className = 'input-row';
+    inputRow.appendChild(input);
     const unitSpan = document.createElement('span');
     unitSpan.className = 'field-unit';
-    unitSpan.textContent = ' ' + unit;
-    wrapper.appendChild(unitSpan);
+    unitSpan.textContent = unit;
+    inputRow.appendChild(unitSpan);
+    wrapper.appendChild(inputRow);
+  } else {
+    wrapper.appendChild(input);
   }
   return wrapper;
 }

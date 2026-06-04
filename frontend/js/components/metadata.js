@@ -1,5 +1,5 @@
 import { createCollapsibleBlock } from '../utils/dom.js';
-import { createField, createCheckboxGroup } from '../utils/form.js';
+import { createField } from '../utils/form.js';
 import { getState, setState } from '../state.js';
 
 function renderTagsInput() {
@@ -57,6 +57,7 @@ export function render(container) {
       createField({ label: 'Description', path: 'description', type: 'textarea', defaultValue: '' }),
       createField({ label: 'Author', path: 'author', type: 'text', defaultValue: '' }),
       createField({ label: 'Project', path: 'project', type: 'text', defaultValue: '' }),
+      createField({ label: 'Version', path: 'version', type: 'text', defaultValue: '' }),
       createField({ label: 'Priority', path: 'priority', type: 'select', options: ['low', 'medium', 'high', 'critical'], defaultValue: 'medium' }),
       renderTagsInput(),
       createField({ label: 'Target Execution', path: 'target_execution', type: 'select', options: ['simulation', 'SIL', 'HIL', 'bench', 'lab'], defaultValue: 'simulation' }),

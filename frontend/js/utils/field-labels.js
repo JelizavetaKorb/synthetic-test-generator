@@ -44,7 +44,7 @@ export const FIELD_LABELS = {
   'timing.test_duration_ms': 'Test duration (ms)',
   'timing.time_resolution_ms': 'Time resolution (ms)',
   'timing.repetitions': 'Repetitions',
-  'timing.inter_test_delay_ms': 'Inter-test delay (ms)',
+  'timing.inter_test_delay_ms': 'Inter test delay (ms)',
 
   // Safety
   'safety.hazard_id': 'Hazard ID',
@@ -99,8 +99,17 @@ export function humanizeValue(v) {
   const s = String(v);
   if (!s) return '';
   const parts = s
-    .split(/[_-]/)
-    .flatMap(piece => piece.replace(/([a-z])([A-Z])/g, '$1 $2').split(' '))
+    .split('_')
+    .flatMap(piece => {
+      // Keep dashes between two uppercase letters (e.g. CAN-FD).
+      // Replace all other dashes with a space.
+      const deDashed = piece.replace(/-/g, (m, offset, str) => {
+        const before = str[offset - 1];
+        const after  = str[offset + 1];
+        return (before && /[A-Z]/.test(before) && after && /[A-Z]/.test(after)) ? '-' : ' ';
+      });
+      return deDashed.replace(/([a-z])([A-Z])/g, '$1 $2').split(' ');
+    })
     .filter(Boolean);
   return parts
     .map(p => (/^[a-z]/.test(p) ? p.charAt(0).toUpperCase() + p.slice(1) : p))

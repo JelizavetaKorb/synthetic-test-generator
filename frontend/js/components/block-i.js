@@ -28,7 +28,6 @@ export function render(container) {
       createField({ label: 'Log Level', path: 'reporting.log_level', type: 'select', options: ['ERROR','WARN','INFO','DEBUG'], defaultValue: 'INFO' }),
       createField({ label: 'Telemetry Frequency', path: 'reporting.telemetry_frequency_hz', type: 'number', min: 1, unit: 'Hz', defaultValue: 10 }),
       createField({ label: 'Trace Capture', path: 'reporting.trace_capture', type: 'checkbox', defaultValue: false }),
-      createField({ label: 'Report Format', path: 'reporting.report_format', type: 'select', options: ['HTML','JSON','CSV','PDF'], defaultValue: 'JSON' }),
       createField({ label: 'Save Artifacts', path: 'reporting.save_artifacts', type: 'checkbox', defaultValue: false }),
     ].forEach(el => content.appendChild(el));
     const sigW = document.createElement('div'); sigW.className = 'field-wrapper';

@@ -37,19 +37,25 @@ function renderSignalItem(item, idx, updateFn, removeFn) {
   const stepInp = document.createElement('input'); stepInp.type = 'number'; stepInp.min = 0; stepInp.value = item.step_time_ms ?? '';
   stepInp.setAttribute('data-field', `signal_list.${idx}.step_time_ms`);
   stepInp.addEventListener('input', () => updateFn('step_time_ms', stepInp.value === '' ? null : parseFloat(stepInp.value)));
-  stepW.appendChild(stepInp); stepW.appendChild(Object.assign(document.createElement('span'), { textContent: ' ms' })); row.appendChild(stepW);
+  const stepRow = document.createElement('div'); stepRow.className = 'input-row'; stepRow.appendChild(stepInp);
+  stepRow.appendChild(Object.assign(document.createElement('span'), { className: 'field-unit', textContent: 'ms' }));
+  stepW.appendChild(stepRow); row.appendChild(stepW);
   const riseW = document.createElement('div'); riseW.className = 'field-wrapper';
   const riseL = document.createElement('label'); riseL.textContent = 'Rise Time'; riseW.appendChild(riseL);
   const riseInp = document.createElement('input'); riseInp.type = 'number'; riseInp.min = 0; riseInp.value = item.rise_time_ms ?? '';
   riseInp.setAttribute('data-field', `signal_list.${idx}.rise_time_ms`);
   riseInp.addEventListener('input', () => updateFn('rise_time_ms', riseInp.value === '' ? null : parseFloat(riseInp.value)));
-  riseW.appendChild(riseInp); riseW.appendChild(Object.assign(document.createElement('span'), { textContent: ' ms' })); row.appendChild(riseW);
+  const riseRow = document.createElement('div'); riseRow.className = 'input-row'; riseRow.appendChild(riseInp);
+  riseRow.appendChild(Object.assign(document.createElement('span'), { className: 'field-unit', textContent: 'ms' }));
+  riseW.appendChild(riseRow); row.appendChild(riseW);
   const fallW = document.createElement('div'); fallW.className = 'field-wrapper';
   const fallL = document.createElement('label'); fallL.textContent = 'Fall Time'; fallW.appendChild(fallL);
   const fallInp = document.createElement('input'); fallInp.type = 'number'; fallInp.min = 0; fallInp.value = item.fall_time_ms ?? '';
   fallInp.setAttribute('data-field', `signal_list.${idx}.fall_time_ms`);
   fallInp.addEventListener('input', () => updateFn('fall_time_ms', fallInp.value === '' ? null : parseFloat(fallInp.value)));
-  fallW.appendChild(fallInp); fallW.appendChild(Object.assign(document.createElement('span'), { textContent: ' ms' })); row.appendChild(fallW);
+  const fallRow = document.createElement('div'); fallRow.className = 'input-row'; fallRow.appendChild(fallInp);
+  fallRow.appendChild(Object.assign(document.createElement('span'), { className: 'field-unit', textContent: 'ms' }));
+  fallW.appendChild(fallRow); row.appendChild(fallW);
   function syncVisibility() {
     const b = bSel.value;
     stepW.style.display = b === 'step' ? '' : 'none';

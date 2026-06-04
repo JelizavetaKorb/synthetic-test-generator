@@ -58,7 +58,12 @@ function renderFaultItem(item, idx, updateFn, removeFn) {
   tgtW.appendChild(tgtSel); row.appendChild(tgtW);
   [['Start Time', 'start_time_ms', 'ms', 0], ['Duration', 'duration_ms', 'ms', 0], ['Intensity', 'intensity', '', 0]].forEach(([lbl, key, unit, min]) => {
     const w = mkF(lbl, key, 'number', key === 'intensity' ? { min: 0, max: 1, step: 0.01 } : { min });
-    if (unit) w.appendChild(Object.assign(document.createElement('span'), { textContent: ' ' + unit }));
+    if (unit) {
+      const inp = w.querySelector('input');
+      const ir = document.createElement('div'); ir.className = 'input-row'; ir.appendChild(inp);
+      ir.appendChild(Object.assign(document.createElement('span'), { className: 'field-unit', textContent: unit }));
+      w.appendChild(ir);
+    }
     row.appendChild(w);
   });
   const patW = document.createElement('div'); patW.className = 'field-wrapper';
@@ -102,7 +107,9 @@ export function render(container) {
         const u = { ...r, [key]: val };
         setState('environmental_perturbations.temperature_ramp', (u.start_C == null && u.end_C == null && u.rate_C_per_min == null) ? null : u);
       });
-      w.appendChild(inp); w.appendChild(Object.assign(document.createElement('span'), { textContent: ' ' + units[key] })); env.appendChild(w);
+      const ir = document.createElement('div'); ir.className = 'input-row'; ir.appendChild(inp);
+      ir.appendChild(Object.assign(document.createElement('span'), { className: 'field-unit', textContent: units[key] }));
+      w.appendChild(ir); env.appendChild(w);
     });
     content.appendChild(env);
     content.appendChild(Object.assign(document.createElement('div'), { className: 'block-errors' }));
