@@ -2,10 +2,6 @@ using TestGen.Core.Models;
 
 namespace TestGen.Core.Validation.Semantic;
 
-/// <summary>
-/// Rule 20 (professor's notes §6.7): if target_execution == HIL, the configured
-/// execution runner must be HIL_bench. Catches mis-configured CI hand-offs.
-/// </summary>
 public sealed class HilTargetRunnerRule : IValidationRule
 {
     public const string RuleCode = "HIL_REQUIRES_HIL_BENCH";

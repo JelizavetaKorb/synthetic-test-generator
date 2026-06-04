@@ -94,12 +94,6 @@ public sealed class GeneratorPipeline
         };
     }
 
-    /// <summary>
-    /// Expands a single sweep specification into an array of axis values.
-    /// Returns either the expanded values, or a <see cref="ValidationIssue"/>
-    /// explaining why the sweep is malformed. The two outputs are mutually
-    /// exclusive.
-    /// </summary>
     private static (object[]? Values, ValidationIssue? Issue) ExpandSweep(
         string key, SweepSpec spec) =>
         spec.Type.ToLowerInvariant() switch
@@ -146,9 +140,7 @@ public sealed class GeneratorPipeline
         if (spec.Values is null || spec.Values.Length == 0)
             return (null, SweepError(key, "INVALID_SWEEP_SPEC",
                 $"Sweep '{key}': enum_list requires a non-empty 'values' array."));
-        // Coerce string values that look like numbers so the output schema
-        // receives numeric JSON values (e.g. -20 not "-20") regardless of
-        // whether the frontend typed them into a text field.
+
         var coerced = spec.Values.Select(CoerceStringToNumber).ToArray();
         return (coerced, null);
     }
@@ -188,25 +180,10 @@ public sealed class GeneratorPipeline
     private static ValidationIssue SweepError(string key, string code, string message) =>
         new() { Severity = "error", Code = code, Field = key, Message = message };
 
-    /// <summary>
-    /// Maps a bare sweep parameter name (as typed by the user in the UI, e.g.
-    /// "battery_voltage_V") to the dotted path the formatter expects, so the
-    /// swept value is placed inside the correct nested section rather than
-    /// emitted as a top-level key on the scenario.
-    /// </summary>
-    /// <summary>
-    /// Routes bare sweep parameter names to the dotted camelCase keys that the
-    /// ScenarioFormatter's dedicated section loops expect (e.g.
-    /// "initialConditions.batteryVoltageV" is handled by the initial_conditions
-    /// loop, "busLoadPct" by BusFlatKeys, etc.).
-    /// Keys that already contain a '.' are passed through unchanged so users
-    /// can still target arbitrary dotted paths.
-    /// </summary>
     private static readonly Dictionary<string, string> SweepKeyRoutes =
         new(StringComparer.OrdinalIgnoreCase)
         {
-            // initial_conditions — route to camelCase so the formatter's
-            // "initialConditions." prefix check fires correctly.
+
             ["battery_voltage_V"]      = "initialConditions.batteryVoltageV",
             ["ambient_temperature_C"]  = "initialConditions.ambientTemperatureC",
             ["engine_state"]           = "initialConditions.engineState",
@@ -217,8 +194,7 @@ public sealed class GeneratorPipeline
             ["ambient_humidity_pct"]   = "initialConditions.ambientHumidityPct",
             ["gps_fix_quality"]        = "initialConditions.gpsFixQuality",
             ["localization_error_m"]   = "initialConditions.localizationErrorM",
-            // timing — testDurationMs / timeResolutionMs are in TimingFlatKeys;
-            // others use the "timing." prefix loop.
+
             ["test_duration_ms"]        = "testDurationMs",
             ["time_resolution_ms"]      = "timeResolutionMs",
             ["startup_timeout_ms"]      = "timing.startupTimeoutMs",
@@ -226,15 +202,14 @@ public sealed class GeneratorPipeline
             ["measurement_interval_ms"] = "timing.measurementIntervalMs",
             ["repetitions"]             = "timing.repetitions",
             ["inter_test_delay_ms"]     = "timing.interTestDelayMs",
-            // bus_config — bare keys matched by BusFlatKeys
+
             ["bus_load_pct"]            = "busLoadPct",
             ["message_jitter_ms"]       = "messageJitterMs",
             ["bitrate_kbps"]            = "bitrateKbps",
-            // reporting — use the "reporting." prefix
+
             ["telemetry_frequency_hz"]  = "reporting.telemetryFrequencyHz",
             ["log_level"]               = "reporting.logLevel",
-            // environmental_perturbations — handled by the generic dotted-key
-            // loop in the formatter; keep snake_case since KeyMap has these.
+
             ["EMI_level"]                 = "environmental_perturbations.EMI_level",
             ["temperature_ramp.start_C"]  = "environmental_perturbations.temperature_ramp.start_C",
             ["temperature_ramp.end_C"]    = "environmental_perturbations.temperature_ramp.end_C",
@@ -242,12 +217,6 @@ public sealed class GeneratorPipeline
                                            = "environmental_perturbations.temperature_ramp.rate_C_per_min",
         };
 
-    /// <summary>
-    /// Translates a sweep parameter name to its nested path so the formatter
-    /// places it in the correct schema section. Unknown names are returned
-    /// unchanged so users can still target arbitrary paths by typing the
-    /// full dotted form themselves.
-    /// </summary>
     private static string RouteSweepKey(string key)
     {
         if (key.Contains('.')) return key;

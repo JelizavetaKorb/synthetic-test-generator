@@ -1,9 +1,6 @@
 import { getState, setState, isFieldLocked } from '../state.js';
 import { humanizeValue } from './field-labels.js';
 
-// Normalize a single option to { value, label } so callers may pass either a
-// bare string (auto-humanized for display) or an explicit { value, label }
-// object when the storage value cannot be derived from the label.
 function normalizeOption(opt) {
   if (opt && typeof opt === 'object' && 'value' in opt) {
     return { value: opt.value, label: opt.label ?? humanizeValue(opt.value) };

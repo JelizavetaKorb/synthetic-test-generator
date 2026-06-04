@@ -2,11 +2,6 @@ using TestGen.Core.Models;
 
 namespace TestGen.Core.Validation.Semantic;
 
-/// <summary>
-/// Rule 11/14 (§6.2): bus load plus expected background load must stay under
-/// 100 %. The "background load" can be supplied either as a sibling parameter
-/// (bus.backgroundLoadPct) or omitted (treated as 0).
-/// </summary>
 public sealed class BusLoadOverflowRule : IValidationRule
 {
     public const string RuleCode = "BUS_LOAD_OVERFLOW";

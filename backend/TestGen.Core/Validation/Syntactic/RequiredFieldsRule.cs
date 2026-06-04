@@ -2,11 +2,6 @@ using TestGen.Core.Models;
 
 namespace TestGen.Core.Validation.Syntactic;
 
-/// <summary>
-/// Rule 16 / §6.1: name, ecu_id and target_execution must be present.
-/// Mirrors the client-side REQ_FIELD check so server-only callers (CI hooks,
-/// programmatic clients) cannot bypass it.
-/// </summary>
 public sealed class RequiredFieldsRule : IValidationRule
 {
     public const string RuleCode = "REQUIRED_FIELD_MISSING";

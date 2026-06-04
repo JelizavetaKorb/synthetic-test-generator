@@ -65,4 +65,3 @@ public sealed class FaultIntensityOutOfRangeRuleTests
         issues.Should().BeEmpty();
     }
 }
-

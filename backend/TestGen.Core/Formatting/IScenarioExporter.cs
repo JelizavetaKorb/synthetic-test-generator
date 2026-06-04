@@ -6,4 +6,3 @@ public interface IScenarioExporter
 {
     byte[] ExportAsCsv(IReadOnlyList<JsonElement> scenarios);
 }
-

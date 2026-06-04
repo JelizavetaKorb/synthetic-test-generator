@@ -63,4 +63,3 @@ public sealed class CsvScenarioExporter : IScenarioExporter
         return value;
     }
 }
-

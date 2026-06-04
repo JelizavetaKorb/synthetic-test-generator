@@ -8,8 +8,7 @@ import { hideResults } from './results-panel.js';
 let profilesCache = [];
 
 function loadEcuCatalog(selectEl) {
-  // Show a visible loading state. The configured backend (Render.com free tier)
-  // can take 30+ seconds to wake from sleep on the first request.
+
   const loadingOpt = document.createElement('option');
   loadingOpt.disabled = true;
   loadingOpt.value = '';
@@ -39,8 +38,7 @@ function loadEcuCatalog(selectEl) {
         selectEl.value = current;
         handleEcuChange(selectEl);
       } else if (ecus.length === 1) {
-        // Single-choice catalogs: pick it for the user so they don't have to
-        // open a dropdown that has only one real option.
+
         selectEl.value = ecus[0].ecuId;
         handleEcuChange(selectEl);
       }
@@ -54,10 +52,10 @@ function loadEcuCatalog(selectEl) {
       opt.disabled = true;
       opt.textContent = `ECU catalog unavailable (${reason}). Type the ECU ID in block B, or click to retry.`;
       selectEl.appendChild(opt);
-      // Flag the catalog as unavailable so block-b switches to manual entry.
+
       setState('ecu_catalog_unavailable', true);
       document.dispatchEvent(new CustomEvent('rerender-editor'));
-      // Single-click retry: clear options and try again.
+
       const retry = () => {
         selectEl.removeEventListener('mousedown', retry);
         Array.from(selectEl.querySelectorAll('option')).forEach(o => {
@@ -196,7 +194,6 @@ export function render(container) {
 
   const controls = createElement('div', { class: 'header-controls' });
 
-  // Wrap each label+select as a paired unit so they never wrap apart.
   function makePair(label, select) {
     const pair = createElement('div', { class: 'header-control-pair' });
     pair.appendChild(label);
@@ -213,4 +210,3 @@ export function render(container) {
   header.appendChild(controls);
   container.appendChild(header);
 }
-

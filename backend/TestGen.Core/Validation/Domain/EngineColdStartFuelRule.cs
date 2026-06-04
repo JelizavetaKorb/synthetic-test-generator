@@ -3,12 +3,6 @@ using TestGen.Core.Services;
 
 namespace TestGen.Core.Validation.Domain;
 
-/// <summary>
-/// Rule 18 / §6.3 (Engine ECU): an Engine-class ECU cannot run a cold-start
-/// test with an empty fuel tank. Triggers when fuel_level_percent == 0 and
-/// the scenario is a cold-start test (testType == "cold_start" or
-/// profileId == "cold-start").
-/// </summary>
 public sealed class EngineColdStartFuelRule : IValidationRule
 {
     public const string RuleCode = "ENGINE_COLD_START_EMPTY_FUEL";

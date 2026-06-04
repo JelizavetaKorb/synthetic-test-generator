@@ -2,10 +2,6 @@ using TestGen.Core.Models;
 
 namespace TestGen.Core.Validation.Semantic;
 
-/// <summary>
-/// Rule 15 / §6.2 #7: FlexRay only operates at the discrete rates {2500, 5000,
-/// 10000} kbps. Any other bitrate is a configuration error.
-/// </summary>
 public sealed class FlexRayBitrateRule : IValidationRule
 {
     public const string RuleCode = "BUS_BITRATE_FLEXRAY";

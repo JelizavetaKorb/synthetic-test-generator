@@ -1,7 +1,4 @@
-/* ------------------------------------------------------------------
-   ECU Test Scenario Builder — design tokens
-   Calm, warm palette. One font family. Soft, consistent components.
-------------------------------------------------------------------- */
+
 :root {
   --bg:            #f5f3ee;
   --surface:       #ffffff;
@@ -15,7 +12,7 @@
   --text-muted:    #6b6862;
   --text-subtle:   #8d8a83;
 
-  --accent:        #5a7d6a;       /* calm sage */
+  --accent:        #5a7d6a;
   --accent-hover:  #4a6a59;
   --accent-soft:   #e7efe9;
 
@@ -81,9 +78,6 @@ body {
 ::-webkit-scrollbar-thumb     { background: var(--border-strong); border-radius: 10px; border: 2px solid var(--bg); }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-subtle); }
 
-/* ------------------------------------------------------------------
-   Header
-------------------------------------------------------------------- */
 .app-header {
   display: flex;
   align-items: center;
@@ -132,9 +126,6 @@ body {
   white-space: nowrap;
 }
 
-/* ------------------------------------------------------------------
-   Main content & layout
-------------------------------------------------------------------- */
 #main-content {
   padding: 28px 32px 120px;
   max-width: 1180px;
@@ -146,9 +137,6 @@ body {
   #main-content { padding: 18px 16px 140px; }
 }
 
-/* ------------------------------------------------------------------
-   Collapsible blocks (cards)
-------------------------------------------------------------------- */
 .collapsible-block {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -200,9 +188,6 @@ body {
 
 .block-content.collapsed { display: none; }
 
-/* ------------------------------------------------------------------
-   Headings
-------------------------------------------------------------------- */
 h2 {
   font-size: 17px;
   font-weight: 600;
@@ -217,9 +202,6 @@ h3 {
   color: var(--text);
 }
 
-/* ------------------------------------------------------------------
-   Buttons — one shared style, variants by modifier
-------------------------------------------------------------------- */
 .btn,
 button {
   font-family: inherit;
@@ -326,7 +308,6 @@ button:disabled {
   line-height: 1;
 }
 
-/* Aliases used by existing markup */
 .btn-remove-bus {
   height: 28px;
   padding: 0 12px;
@@ -352,9 +333,6 @@ button:disabled {
   color: #fff;
 }
 
-/* ------------------------------------------------------------------
-   Inputs, selects, textareas — uniform look
-------------------------------------------------------------------- */
 input[type='text'],
 input[type='number'],
 input[type='email'],
@@ -409,7 +387,6 @@ input[readonly] {
 input::placeholder,
 textarea::placeholder { color: var(--text-subtle); }
 
-/* Selects: custom chevron */
 select {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6862' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
   background-repeat: no-repeat;
@@ -423,8 +400,6 @@ select:disabled {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23bcb8af' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
 }
 
-/* Header select: beat the global `select { width: 100% }` with an
-   element+class selector (higher specificity). */
 select.header-select { width: 130px; min-width: 0; }
 
 input[type='checkbox'],
@@ -436,9 +411,6 @@ input[type='radio'] {
   margin: 0;
 }
 
-/* ------------------------------------------------------------------
-   Fields
-------------------------------------------------------------------- */
 .field-wrapper {
   display: flex;
   flex-direction: column;
@@ -495,7 +467,6 @@ input[type='radio'] {
 
 .checkbox-item:hover { background: var(--surface-sunk); }
 
-/* Field error / highlight */
 .field-has-error input,
 .field-has-error select,
 .field-has-error textarea,
@@ -520,9 +491,6 @@ textarea.field-has-error {
 .inline-field-error--error   { color: var(--danger); }
 .inline-field-error--warning { color: var(--warning); }
 
-/* ------------------------------------------------------------------
-   Dynamic lists (signals, faults, etc.)
-------------------------------------------------------------------- */
 .dynamic-list {
   margin-bottom: 16px;
 }
@@ -579,7 +547,6 @@ textarea.field-has-error {
   color: var(--text);
 }
 
-/* Sweep config */
 .sweep-add-row {
   display: flex;
   flex-wrap: wrap;
@@ -651,7 +618,6 @@ textarea.field-has-error {
   color: var(--text-subtle);
 }
 
-/* Scenario table (results) */
 .scenario-table {
   width: 100%;
   border-collapse: separate;
@@ -682,9 +648,6 @@ textarea.field-has-error {
 
 .scenario-table tr:last-child td { border-bottom: none; }
 
-/* ------------------------------------------------------------------
-   JSON preview panel (slide-over)
-------------------------------------------------------------------- */
 .preview-panel {
   position: fixed;
   top: 0;
@@ -810,9 +773,6 @@ textarea.field-has-error {
   margin-bottom: 6px;
 }
 
-/* ------------------------------------------------------------------
-   Validation / issues panel
-------------------------------------------------------------------- */
 .issues-panel {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
@@ -898,9 +858,6 @@ textarea.field-has-error {
   gap: 8px;
 }
 
-/* ------------------------------------------------------------------
-   Action bar (sticky footer)
-------------------------------------------------------------------- */
 .action-bar {
   display: flex;
   gap: 10px;
@@ -918,9 +875,6 @@ textarea.field-has-error {
   box-shadow: 0 -4px 16px rgba(40, 35, 25, 0.04);
 }
 
-/* ------------------------------------------------------------------
-   Results panel
-------------------------------------------------------------------- */
 .results-panel {
   padding: 28px 32px 120px;
   max-width: 1180px;

@@ -134,7 +134,6 @@ export function render(container) {
   panel.appendChild(body);
   container.appendChild(panel);
 
-  // Esc closes the panel when it is open.
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !panel.classList.contains('hidden')) hide();
   });

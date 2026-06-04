@@ -69,4 +69,3 @@ public sealed class SweepEvaluationTests
         result.Cast<double>().Should().BeEquivalentTo(new[] { 0.0, 5.0, 10.0 });
     }
 }
-

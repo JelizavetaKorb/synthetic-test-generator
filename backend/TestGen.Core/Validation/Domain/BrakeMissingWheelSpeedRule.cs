@@ -5,14 +5,6 @@ using TestGen.Core.Services;
 
 namespace TestGen.Core.Validation.Domain;
 
-/// <summary>
-/// Rule 17 / §6.3 (Brake ECU): if the configured ECU is a Brake ECU and any
-/// assertion references the <c>wheel_speed</c> signal, the bus message
-/// definitions must include <c>MSG_WHEEL_SPEED</c> (matched on
-/// <c>messageDefs[*].id</c> or <c>messageDefs[*].name</c>) or
-/// <c>signal_list</c> must declare a signal whose name contains
-/// <c>wheel_speed</c>.
-/// </summary>
 public sealed class BrakeMissingWheelSpeedRule : IValidationRule
 {
     public const string RuleCode = "BRAKE_WHEEL_SPEED_MISSING";

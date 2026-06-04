@@ -3,12 +3,6 @@ using TestGen.Core.Models;
 
 namespace TestGen.Core.Validation.Safety;
 
-/// <summary>
-/// Rule 13 / §6.4: whenever an ASIL level is set the scenario must reference a
-/// hazard_id and carry at least one assertion of severity 'critical'. This
-/// complements <see cref="AsilDMissingCriticalAssertionsRule"/> by covering
-/// ASIL A/B/C and the hazard-id requirement.
-/// </summary>
 public sealed class AsilRequiresHazardRule : IValidationRule
 {
     public const string RuleCode = "ASIL_REQUIRES_HAZARD";
@@ -48,9 +42,6 @@ public sealed class AsilRequiresHazardRule : IValidationRule
             }
         }
 
-        // ASIL A/B may be satisfied by a major-severity assertion per §6.4
-        // wording; only ASIL C/D demand 'critical'. ASIL D is already covered
-        // by AsilDMissingCriticalAssertionsRule, so here we focus on ASIL C.
         if (asil.Equals("C", StringComparison.OrdinalIgnoreCase) && !hasCritical)
             yield return new ValidationIssue
             {

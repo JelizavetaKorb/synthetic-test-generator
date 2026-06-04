@@ -49,10 +49,10 @@ function renderSweepEntry(name, cfg, mapEl) {
   nameI.addEventListener('change', () => {
     const newName = nameI.value.trim(); if (!newName || newName === name) return;
     const cur = { ...(getState('sweep_parameters') || {}) };
-    if (cur[newName]) { nameI.value = name; return; }   // already exists, revert
+    if (cur[newName]) { nameI.value = name; return; }
     const cfg = cur[name]; delete cur[name]; cur[newName] = cfg;
     setState('sweep_parameters', cur);
-    // update all data-field attributes inside this row
+
     row.querySelectorAll('[data-field]').forEach(el => {
       el.setAttribute('data-field', el.getAttribute('data-field').replace(`sweep_parameters.${name}`, `sweep_parameters.${newName}`));
     });
@@ -86,7 +86,7 @@ export function render(container) {
     addBtn.addEventListener('click', () => {
       let name = nameInp.value.trim();
       if (!name) {
-        // auto-generate a unique key so the button always does something visible
+
         const cur = getState('sweep_parameters') || {};
         let n = 1; while (cur[`param_${n}`]) n++;
         name = `param_${n}`;

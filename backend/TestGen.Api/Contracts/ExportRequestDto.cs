@@ -7,4 +7,3 @@ public sealed class ExportRequestDto
     public JsonElement[] Scenarios { get; set; } = Array.Empty<JsonElement>();
     public string Format { get; set; } = "json";
 }
-

@@ -24,8 +24,7 @@ function buildGenerateBody() {
     sweepParameters: s.sweep_parameters,
     strategy: s.combinatorial_strategy,
     maxScenarios: s.max_generated_scenarios
-    // NOTE: backend GenerateRequestDto has no `allowWarnings` field.
-    // Warning suppression is a client-side UX gate only.
+
   };
 }
 
@@ -36,7 +35,6 @@ async function handleGenerate(btn, allowWarnings) {
   clearIssues();
   hideResults();
 
-  // 1. Client-side preflight — fast, friendly errors before contacting the backend.
   const clientIssues = runClientValidation(getFullState());
   const clientErrors = clientIssues.filter(i => i.severity === 'error');
   const clientWarnings = clientIssues.filter(i => i.severity === 'warning');

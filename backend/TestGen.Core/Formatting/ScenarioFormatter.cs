@@ -66,9 +66,6 @@ public sealed class ScenarioFormatter : IScenarioFormatter
             ["reporting.captureSignals"]                 = "signals_to_record",
             ["signalsToRecord"]                           = "signals_to_record",
 
-            // Frontend sends snake_case-with-uppercase-units (matching the schema). The
-            // key is matched case-sensitively, so list both the lowercase form (defensive)
-            // and the actual incoming form to guarantee a hit.
             ["environmental_perturbations.temperature_ramp.start_C"]        = "temperature_ramp.start_C",
             ["environmental_perturbations.temperature_ramp.end_C"]          = "temperature_ramp.end_C",
             ["environmental_perturbations.temperature_ramp.rate_C_per_min"] = "temperature_ramp.rate_C_per_min",
@@ -181,9 +178,7 @@ public sealed class ScenarioFormatter : IScenarioFormatter
         foreach (var kvp in p)
         {
             if (!kvp.Key.StartsWith("execution.", StringComparison.Ordinal)) continue;
-            // Strip the "execution." prefix so the leaf key (e.g. targetRunner)
-            // can be remapped to its bare snake_case form (target_runner) and
-            // not be emitted as "execution.target_runner" inside the object.
+
             var leaf   = kvp.Key.Substring("execution.".Length);
             var outKey = Remap("execution." + leaf, fallback: CamelToSnake(leaf));
             execution[outKey] = ToJsonNode(kvp.Value);
@@ -198,8 +193,7 @@ public sealed class ScenarioFormatter : IScenarioFormatter
             var outKey = Remap("advanced." + leaf, fallback: CamelToSnake(leaf));
             advanced[outKey] = ToJsonNode(kvp.Value);
         }
-        // The schema places constraint_expressions under "advanced"; if the
-        // frontend sends it at the root, fold it in here.
+
         if (p.TryGetValue("constraintExpressions", out var rootCe))
         {
             var node = ToJsonNode(rootCe);
@@ -272,13 +266,11 @@ public sealed class ScenarioFormatter : IScenarioFormatter
         handledKeys.Add("signalList");
         handledKeys.Add("sequenceScript");
         handledKeys.Add("sweepParameters");
-        // Already consumed above (folded into advanced.constraint_expressions).
+
         handledKeys.Add("constraintExpressions");
-        // Consumed above inside the reporting block.
+
         handledKeys.Add("signalsToRecord");
-        // Keys the frontend may emit that are not part of the professor's
-        // JSON schema (additionalProperties: false). Drop them silently so
-        // the output validates.
+
         var droppedRootKeys = new HashSet<string>(StringComparer.Ordinal)
         {
             "testType",
@@ -311,8 +303,7 @@ public sealed class ScenarioFormatter : IScenarioFormatter
                 var section = CamelToSnake(kvp.Key[..dot]);
                 var field   = Remap(kvp.Key[..dot] + "." + kvp.Key[(dot + 1)..],
                                     fallback: CamelToSnake(kvp.Key[(dot + 1)..]));
-                // The professor's schema spells this key with an uppercase
-                // "EMI_" prefix; honour that exactly.
+
                 if (section == "environmental_perturbations" && field == "emi_level")
                     field = "EMI_level";
                 if (root[section] is not JsonObject existing)
@@ -320,15 +311,11 @@ public sealed class ScenarioFormatter : IScenarioFormatter
                     existing = new JsonObject();
                     root[section] = existing;
                 }
-                // Case-insensitive key lookup: sweep overrides arrive with snake_case
-                // paths (e.g. battery_voltage_v) while the base profile used the exact
-                // cased key (battery_voltage_V). Reuse the original key so the value
-                // is overwritten rather than duplicated under a differently-cased name.
+
                 var resolvedField = existing.Select(x => x.Key)
                     .FirstOrDefault(k => string.Equals(k, field, StringComparison.OrdinalIgnoreCase))
                     ?? field;
-                // Use SetNestedKey so dotted sub-fields (e.g. temperature_ramp.start_C)
-                // are properly nested rather than stored as literal dotted string keys.
+
                 SetNestedKey(existing, resolvedField, ToJsonNode(kvp.Value));
             }
             else
@@ -554,12 +541,6 @@ public sealed class ScenarioFormatter : IScenarioFormatter
         return obj;
     }
 
-    /// <summary>
-    /// Sets a value on <paramref name="obj"/> using a potentially dotted
-    /// <paramref name="key"/> (e.g. "time_window_ms.from") by creating
-    /// intermediate JsonObjects as needed, so the result is properly nested
-    /// rather than a flat string key containing a dot.
-    /// </summary>
     private static void SetNestedKey(JsonObject obj, string key, JsonNode? value)
     {
         var dot = key.IndexOf('.');

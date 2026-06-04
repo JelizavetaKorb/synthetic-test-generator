@@ -178,14 +178,12 @@ const FLATTEN_SKIP = new Set([
   'profile', 'recommended_assertions', 'scenario_id', 'created_at',
   'sweep_parameters', 'combinatorial_strategy', 'max_generated_scenarios',
   'selection_strategy', 'search_algorithm', 'ecu_catalog_entry',
-  // UI-only fields not present in the professor's JSON schema:
+
   'faults_enabled', 'ecu_catalog_unavailable',
   'unit_test_params', 'stress_endurance_params',
   'integration_test_params',
 ]);
 
-// Lists that should be sent as a single array under a backend key (scalars or
-// items that the backend never validates per-element).
 const LIST_KEY_MAP = {
   'sequence_script': 'sequenceScript',
   'event_triggers':  'eventTriggers',
@@ -196,8 +194,6 @@ const LIST_KEY_MAP = {
   'reporting.signals_to_record': 'signalsToRecord'
 };
 
-// Lists whose elements ARE validated individually on the backend; they must be
-// flattened to `name[i].subField` form so rules can pick them up.
 const BRACKET_FLATTEN_LISTS = {
   'faults':      'faults',
   'assertions':  'assertions',
@@ -211,7 +207,7 @@ function snakeToCamel(s) {
 function flattenObjectIntoBracket(obj, prefix, out) {
   if (obj === null || obj === undefined) return;
   if (Array.isArray(obj)) {
-    // Nested arrays inside an item are rare; ship as-is under the prefix.
+
     out[prefix] = obj;
     return;
   }

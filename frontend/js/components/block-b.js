@@ -8,9 +8,7 @@ const FALLBACK_MODES = ['NORMAL', 'DIAGNOSTIC', 'SAFE', 'CALIBRATION'];
 
 export function render(container) {
   const block = createCollapsibleBlock('B. ECU Selection & HW Config', 'block-b', content => {
-    // ECU ID is normally driven by the header dropdown. If the catalog API
-    // is unavailable (e.g. backend not redeployed), fall back to manual entry
-    // so the user is not locked out.
+
     const catalogDown = !!getState('ecu_catalog_unavailable');
     const ecuWrapper = document.createElement('div');
     ecuWrapper.className = 'field-wrapper';
@@ -86,4 +84,3 @@ export function render(container) {
   });
   container.appendChild(block);
 }
-

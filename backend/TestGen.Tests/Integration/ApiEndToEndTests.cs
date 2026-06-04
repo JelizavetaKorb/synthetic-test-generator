@@ -6,11 +6,6 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace TestGen.Tests.Integration;
 
-/// <summary>
-/// End-to-end tests that boot the real ASP.NET Core pipeline in-memory and
-/// hit it through HttpClient. They exercise DI wiring, JSON contracts and the
-/// full profile → generator → formatter pipeline as a black box.
-/// </summary>
 public sealed class ApiEndToEndTests : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly HttpClient _client;
@@ -103,8 +98,7 @@ public sealed class ApiEndToEndTests : IClassFixture<WebApplicationFactory<Progr
     [Fact]
     public async Task GenerateWithCartesianExplosion_IsRejected()
     {
-        // 11 * 11 * 11 = 1331 > default MaxScenarios (100): must trip
-        // CARTESIAN_EXPLOSION before materialising any scenario.
+
         var resp = await _client.PostAsJsonAsync("/api/scenarios/generate", new
         {
             profileId    = "cold-start",
@@ -130,9 +124,7 @@ public sealed class ApiEndToEndTests : IClassFixture<WebApplicationFactory<Progr
     [Fact]
     public async Task BmsOvervoltage_IsRejected_EndToEnd()
     {
-        // Real EcuCatalog.json declares BMS-001 with maxOperationalVoltage=16.5
-        // Sending 20V without a safety_overvoltage_test must surface the new
-        // rule 19 (BMS_OVERVOLTAGE_WITHOUT_SAFETY_TEST) as a validation issue.
+
         var resp = await _client.PostAsJsonAsync("/api/scenarios/generate", new
         {
             strategy     = "cartesian",

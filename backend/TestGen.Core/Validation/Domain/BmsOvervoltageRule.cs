@@ -3,12 +3,6 @@ using TestGen.Core.Services;
 
 namespace TestGen.Core.Validation.Domain;
 
-/// <summary>
-/// Rule 19 / §6.3 (BMS): for a BMS-class ECU, when battery_voltage_V exceeds
-/// the catalog's max_operational_voltage the scenario must be explicitly
-/// marked as an overvoltage safety test (testType == "safety_overvoltage_test"
-/// or profileId starts with "safety-critical-asil-").
-/// </summary>
 public sealed class BmsOvervoltageRule : IValidationRule
 {
     public const string RuleCode = "BMS_OVERVOLTAGE_WITHOUT_SAFETY_TEST";

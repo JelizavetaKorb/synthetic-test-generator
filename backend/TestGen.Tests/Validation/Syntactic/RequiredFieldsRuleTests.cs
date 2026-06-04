@@ -17,7 +17,7 @@ public sealed class RequiredFieldsRuleTests
             .WithParameter("ecuId",           "ENGINE-ECU-001")
             .WithParameter("targetExecution", "simulation")
             .Build();
-        // ScenarioBuilder seeds Name = "Test Scenario"
+
         Rule.Check(s, AnyProfile).Should().BeEmpty();
     }
 

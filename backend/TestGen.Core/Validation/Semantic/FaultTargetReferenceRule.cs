@@ -4,10 +4,6 @@ using TestGen.Core.Models;
 
 namespace TestGen.Core.Validation.Semantic;
 
-/// <summary>
-/// Rule 5 / §6.2 #5: every fault.target must reference an existing signal
-/// (signal_list[*].name) or message (messageDefs[*].id or name).
-/// </summary>
 public sealed class FaultTargetReferenceRule : IValidationRule
 {
     public const string RuleCode = "FAULT_TARGET_UNKNOWN";
@@ -30,7 +26,6 @@ public sealed class FaultTargetReferenceRule : IValidationRule
             }
         }
 
-        // Some payloads ship signal_list as a single JSON array (LIST_KEY_MAP path).
         if (p.TryGetValue("signalList", out var sigRaw) && sigRaw is JsonElement sigEl &&
             sigEl.ValueKind == JsonValueKind.Array)
         {
@@ -52,9 +47,6 @@ public sealed class FaultTargetReferenceRule : IValidationRule
             }
         }
 
-        // If we couldn't discover any signals/messages at all, skip — the
-        // scenario likely supplies them via a path we don't model and we'd
-        // produce noisy false positives.
         if (knownTargets.Count == 0) yield break;
 
         foreach (var key in p.Keys)

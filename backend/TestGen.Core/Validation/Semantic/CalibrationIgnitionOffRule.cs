@@ -36,4 +36,3 @@ public sealed class CalibrationIgnitionOffRule : IValidationRule
             };
     }
 }
-

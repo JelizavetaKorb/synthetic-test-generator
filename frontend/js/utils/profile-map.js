@@ -22,8 +22,7 @@ export const STATE_TO_BACKEND = {
   'initial_conditions.ambient_humidity_pct':        'initialConditions.ambientHumidityPct',
   'initial_conditions.gps_fix_quality':             'initialConditions.gpsFixQuality',
   'initial_conditions.localization_error_m':        'initialConditions.localizationErrorM',
-  // Validation rules look for the bare keys (testDurationMs / timeResolutionMs);
-  // the backend formatter still renders them under the `timing` section in output.
+
   'timing.test_duration_ms':                        'testDurationMs',
   'timing.time_resolution_ms':                      'timeResolutionMs',
   'timing.repetitions':                             'timing.repetitions',

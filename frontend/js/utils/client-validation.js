@@ -1,26 +1,13 @@
-// Client-side preflight validation for ECU test scenarios. Runs against the
-// local state shape exposed by state.js and produces issue objects compatible
-// with the validation panel:
-//   { code, severity, field, message, suggestedFix? }
-//
-// Severities:
-//   'error'   — must be fixed before generation (cannot be overridden).
-//   'warning' — user may proceed anyway via the "Generate anyway" button.
-//
-// suggestedFix is either:
-//   { path: 'state.path', value: <new value>, label: 'Human-readable action' }
-//   or an array of those.
 
 import { labelFor } from './field-labels.js';
 
-// ---------- helpers ----------
 const FLEXRAY_ALLOWED_KBPS = [2500, 5000, 10000];
 
 const BUS_RATE_RANGE = {
   CAN: [10, 1000],
   'CAN-FD': [10, 8000],
   LIN: [1, 20],
-  FlexRay: null, // discrete set
+  FlexRay: null,
   Ethernet: [10, 10_000_000],
 };
 
@@ -45,7 +32,6 @@ const REQUIRED_TEXT_FIELDS = [
 
 const CARTESIAN_BLOCK_THRESHOLD = 10_000;
 
-// ---------- field range/required checks ----------
 function checkRequiredFields(s, issues) {
   REQUIRED_TEXT_FIELDS.forEach(([path, hint]) => {
     const v = getByPath(s, path);
@@ -87,7 +73,6 @@ function checkRanges(s, issues) {
   });
 }
 
-// ---------- semantic rules (section 6.2) ----------
 function checkInitialConditions(s, issues) {
   const eng = s.initial_conditions?.engine_state;
   const speed = Number(s.initial_conditions?.vehicle_speed_mps ?? 0);
@@ -185,7 +170,6 @@ function checkBus(s, issues) {
     }
   }
 
-  // Unique message IDs
   const seenMsgIds = new Map();
   (bus.message_defs || []).forEach((m, i) => {
     if (!m.id) {
@@ -392,7 +376,6 @@ function checkSweep(s, issues) {
   const strategy = s.combinatorial_strategy;
   const max = Number(s.max_generated_scenarios ?? 0);
 
-  // Validate per-sweep fields
   sweeps.forEach(([name, cfg]) => {
     const t = cfg?.type;
     const need = (k) => cfg?.[k] === null || cfg?.[k] === undefined || cfg?.[k] === '';
@@ -435,7 +418,6 @@ function checkSweep(s, issues) {
     }
   });
 
-  // Combinatorial explosion estimate (cartesian only)
   if (strategy === 'cartesian') {
     let total = 1;
     sweeps.forEach(([, cfg]) => {
@@ -477,9 +459,8 @@ function estimateSweepSize(cfg) {
   }
 }
 
-// ---------- main entry ----------
 function checkExecution(s, issues) {
-  // Rule 20: target_execution == HIL → execution.target_runner must be HIL_bench.
+
   if (s.target_execution === 'HIL') {
     const runner = s.execution?.target_runner;
     if (!runner) {
@@ -517,7 +498,6 @@ export function runClientValidation(state) {
   return issues;
 }
 
-// ---------- utilities ----------
 function clamp(n, lo, hi) {
   return Math.min(hi, Math.max(lo, n));
 }

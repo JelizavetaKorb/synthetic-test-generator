@@ -47,4 +47,3 @@ export function render(container) {
   });
   container.appendChild(block);
 }
-
