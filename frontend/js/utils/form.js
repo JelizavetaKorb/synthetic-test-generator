@@ -1,4 +1,15 @@
 import { getState, setState, isFieldLocked } from '../state.js';
+import { humanizeValue } from './field-labels.js';
+
+// Normalize a single option to { value, label } so callers may pass either a
+// bare string (auto-humanized for display) or an explicit { value, label }
+// object when the storage value cannot be derived from the label.
+function normalizeOption(opt) {
+  if (opt && typeof opt === 'object' && 'value' in opt) {
+    return { value: opt.value, label: opt.label ?? humanizeValue(opt.value) };
+  }
+  return { value: opt, label: humanizeValue(opt) };
+}
 
 export function createField(config) {
   const { label, path, type, unit, min, max, step, options, required, defaultValue } = config;
@@ -17,10 +28,11 @@ export function createField(config) {
   } else if (type === 'select') {
     input = document.createElement('select');
     (options || []).forEach(opt => {
+      const { value, label } = normalizeOption(opt);
       const o = document.createElement('option');
-      o.value = opt;
-      o.textContent = opt;
-      if (opt === currentValue) o.selected = true;
+      o.value = value;
+      o.textContent = label;
+      if (value === currentValue) o.selected = true;
       input.appendChild(o);
     });
     input.addEventListener('change', () => setState(path, input.value));
@@ -70,12 +82,13 @@ export function createCheckboxGroup(config) {
   group.className = 'checkbox-group-options';
   const currentValues = getState(path) || [];
   (options || []).forEach(opt => {
+    const { value, label } = normalizeOption(opt);
     const item = document.createElement('label');
     item.className = 'checkbox-item';
     const cb = document.createElement('input');
     cb.type = 'checkbox';
-    cb.value = opt;
-    cb.checked = currentValues.includes(opt);
+    cb.value = value;
+    cb.checked = currentValues.includes(value);
     cb.setAttribute('data-field', path);
     if (isFieldLocked(path)) cb.disabled = true;
     cb.addEventListener('change', () => {
@@ -84,7 +97,7 @@ export function createCheckboxGroup(config) {
       setState(path, selected);
     });
     item.appendChild(cb);
-    item.appendChild(document.createTextNode(' ' + opt));
+    item.appendChild(document.createTextNode(' ' + label));
     group.appendChild(item);
   });
   wrapper.appendChild(group);

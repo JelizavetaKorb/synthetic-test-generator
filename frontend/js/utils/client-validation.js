@@ -478,6 +478,28 @@ function estimateSweepSize(cfg) {
 }
 
 // ---------- main entry ----------
+function checkExecution(s, issues) {
+  // Rule 20: target_execution == HIL → execution.target_runner must be HIL_bench.
+  if (s.target_execution === 'HIL') {
+    const runner = s.execution?.target_runner;
+    if (!runner) {
+      issues.push({
+        code: 'HIL_REQUIRES_HIL_BENCH', severity: 'error',
+        field: 'execution.target_runner',
+        message: 'Target execution is HIL but no runner is configured. Set the runner to HIL_bench.',
+        suggestedFix: { path: 'execution.target_runner', value: 'HIL_bench', label: 'Set runner to HIL_bench' },
+      });
+    } else if (runner !== 'HIL_bench') {
+      issues.push({
+        code: 'HIL_REQUIRES_HIL_BENCH', severity: 'error',
+        field: 'execution.target_runner',
+        message: `Target execution is HIL but runner is "${runner}". It must be HIL_bench.`,
+        suggestedFix: { path: 'execution.target_runner', value: 'HIL_bench', label: 'Set runner to HIL_bench' },
+      });
+    }
+  }
+}
+
 export function runClientValidation(state) {
   const issues = [];
   checkRequiredFields(state, issues);
@@ -491,6 +513,7 @@ export function runClientValidation(state) {
   checkTiming(state, issues);
   checkSafety(state, issues);
   checkSweep(state, issues);
+  checkExecution(state, issues);
   return issues;
 }
 

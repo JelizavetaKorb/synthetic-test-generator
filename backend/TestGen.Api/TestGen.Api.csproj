@@ -8,6 +8,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="TestGen.Tests" />
+  </ItemGroup>
+
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>

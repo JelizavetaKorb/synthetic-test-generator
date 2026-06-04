@@ -1,5 +1,6 @@
 import { createCollapsibleBlock } from '../utils/dom.js';
 import { createDynamicList } from '../utils/form.js';
+import { humanizeValue } from '../utils/field-labels.js';
 
 function makeInp(lbl, key, type, opts, idx, listPath) {
   const w = document.createElement('div'); w.className = 'field-wrapper';
@@ -7,7 +8,7 @@ function makeInp(lbl, key, type, opts, idx, listPath) {
   let el;
   if (type === 'select') {
     el = document.createElement('select');
-    (opts || []).forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = o; el.appendChild(op); });
+    (opts || []).forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = humanizeValue(o); el.appendChild(op); });
   } else {
     el = document.createElement('input'); el.type = type === 'number' ? 'number' : 'text';
   }

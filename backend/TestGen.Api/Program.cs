@@ -33,6 +33,7 @@ builder.Services.AddSingleton<IScenarioReportValidator, ScenarioReportValidator>
 
 // Syntactic validation rules
 builder.Services.AddSingleton<IValidationRule, LockedParameterOverriddenRule>();
+builder.Services.AddSingleton<IValidationRule, RequiredFieldsRule>();
 
 // Semantic validation rules
 builder.Services.AddSingleton<IValidationRule, EngineOffSpeedGtZeroRule>();
@@ -42,13 +43,21 @@ builder.Services.AddSingleton<IValidationRule, TimingOverflowRule>();
 builder.Services.AddSingleton<IValidationRule, AssertionWindowExceedsTestDurationRule>();
 builder.Services.AddSingleton<IValidationRule, FaultIntensityOutOfRangeRule>();
 builder.Services.AddSingleton<IValidationRule, CalibrationIgnitionOffRule>();
+builder.Services.AddSingleton<IValidationRule, HilTargetRunnerRule>();
+builder.Services.AddSingleton<IValidationRule, BusLoadOverflowRule>();
+builder.Services.AddSingleton<IValidationRule, FlexRayBitrateRule>();
+builder.Services.AddSingleton<IValidationRule, FaultTargetReferenceRule>();
 
 // Domain validation rules
 builder.Services.AddSingleton<IValidationRule, BatteryBelowEcuMinimumRule>();
+builder.Services.AddSingleton<IValidationRule, BrakeMissingWheelSpeedRule>();
+builder.Services.AddSingleton<IValidationRule, EngineColdStartFuelRule>();
+builder.Services.AddSingleton<IValidationRule, BmsOvervoltageRule>();
 
 // Safety validation rules
 builder.Services.AddSingleton<IValidationRule, AsilDMissingCriticalAssertionsRule>();
 builder.Services.AddSingleton<IValidationRule, AsilTargetExecutionRule>();
+builder.Services.AddSingleton<IValidationRule, AsilRequiresHazardRule>();
 
 builder.Services.AddSingleton<GeneratorPipeline>();
 builder.Services.AddKeyedSingleton<IGenerationService, CartesianScenarioGenerator>("cartesian");
@@ -77,3 +86,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Expose Program for WebApplicationFactory-based integration tests.
+public partial class Program { }

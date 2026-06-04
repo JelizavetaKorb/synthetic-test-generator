@@ -1,6 +1,7 @@
 import { createCollapsibleBlock } from '../utils/dom.js';
 import { createField, createDynamicList } from '../utils/form.js';
 import { getState, setState, subscribe } from '../state.js';
+import { humanizeValue } from '../utils/field-labels.js';
 
 function buildTargetOptions(sel, cur) {
   sel.innerHTML = '';
@@ -45,7 +46,7 @@ function renderFaultItem(item, idx, updateFn, removeFn) {
   typeW.appendChild(Object.assign(document.createElement('label'), { textContent: 'Type' }));
   const typeSel = document.createElement('select');
   ['message_loss','tx_error','rx_error','bit_flip','bus_noise','short_circuit','sensor_spoof','sensor_dropout','actuator_stuck','soft_reboot','high_latency','packet_delay','packet_duplication'].forEach(v => {
-    const o = document.createElement('option'); o.value = v; o.textContent = v; if (v === item.type) o.selected = true; typeSel.appendChild(o);
+    const o = document.createElement('option'); o.value = v; o.textContent = humanizeValue(v); if (v === item.type) o.selected = true; typeSel.appendChild(o);
   });
   typeSel.setAttribute('data-field', `faults.${idx}.type`); typeSel.addEventListener('change', () => updateFn('type', typeSel.value));
   typeW.appendChild(typeSel); row.appendChild(typeW);
@@ -63,7 +64,7 @@ function renderFaultItem(item, idx, updateFn, removeFn) {
   const patW = document.createElement('div'); patW.className = 'field-wrapper';
   patW.appendChild(Object.assign(document.createElement('label'), { textContent: 'Pattern' }));
   const patSel = document.createElement('select');
-  ['continuous','burst','periodic','random'].forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; if (v === item.pattern) o.selected = true; patSel.appendChild(o); });
+  ['continuous','burst','periodic','random'].forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = humanizeValue(v); if (v === item.pattern) o.selected = true; patSel.appendChild(o); });
   patSel.setAttribute('data-field', `faults.${idx}.pattern`); patSel.addEventListener('change', () => updateFn('pattern', patSel.value));
   patW.appendChild(patSel); row.appendChild(patW);
   const repW = document.createElement('div'); repW.className = 'field-wrapper';

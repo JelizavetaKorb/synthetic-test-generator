@@ -1,6 +1,7 @@
 import { createCollapsibleBlock } from '../utils/dom.js';
 import { createField } from '../utils/form.js';
 import { getState, setState } from '../state.js';
+import { humanizeValue } from '../utils/field-labels.js';
 
 const FALLBACK_INTERFACES = ['CAN', 'CAN-FD', 'LIN', 'FlexRay', 'Ethernet', 'UART', 'SPI', 'I2C'];
 const FALLBACK_MODES = ['NORMAL', 'DIAGNOSTIC', 'SAFE', 'CALIBRATION'];
@@ -48,7 +49,7 @@ export function render(container) {
     const cur = getState('ecu_mode');
     FALLBACK_MODES.forEach(m => {
       const o = document.createElement('option');
-      o.value = m; o.textContent = m;
+      o.value = m; o.textContent = humanizeValue(m);
       if (m === cur) o.selected = true;
       modeSel.appendChild(o);
     });
@@ -77,7 +78,7 @@ export function render(container) {
         setState('hw_interface', Array.from(hwGroup.querySelectorAll('input:checked')).map(c => c.value));
       });
       lbl.appendChild(cb);
-      lbl.appendChild(document.createTextNode(' ' + opt));
+      lbl.appendChild(document.createTextNode(' ' + humanizeValue(opt)));
       hwGroup.appendChild(lbl);
     });
 

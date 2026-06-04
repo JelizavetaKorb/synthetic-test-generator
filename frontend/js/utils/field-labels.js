@@ -90,6 +90,24 @@ function humanizeKey(key) {
     .replace(/\bPct\b/g, '(%)');
 }
 
+// Convert an internal enum/identifier value into a readable label for display
+// in dropdowns and checkbox groups. Splits on `_` and `-`, then on camelCase
+// boundaries that follow a lowercase letter, and title-cases lowercase tokens.
+// All-uppercase tokens (acronyms like SIL, HIL, CAN, GPS, ASIL, JSON) are kept
+// intact, and the surrounding storage value (sent to the backend) is unchanged.
+export function humanizeValue(v) {
+  if (v === null || v === undefined) return '';
+  const s = String(v);
+  if (!s) return '';
+  const parts = s
+    .split(/[_-]/)
+    .flatMap(piece => piece.replace(/([a-z])([A-Z])/g, '$1 $2').split(' '))
+    .filter(Boolean);
+  return parts
+    .map(p => (/^[a-z]/.test(p) ? p.charAt(0).toUpperCase() + p.slice(1) : p))
+    .join(' ');
+}
+
 export function labelFor(field) {
   if (!field) return '';
   if (FIELD_LABELS[field]) return FIELD_LABELS[field];

@@ -22,6 +22,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TestGen.Core\TestGen.Core.csproj" />
+    <ProjectReference Include="..\TestGen.Api\TestGen.Api.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.11" />
   </ItemGroup>
 
   <ItemGroup>

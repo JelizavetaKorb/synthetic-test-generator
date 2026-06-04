@@ -75,77 +75,9 @@ public sealed class GeneratorPipeline
         {
             foreach (var (key, spec) in request.SweepParameters)
             {
-                if (spec.Type.Equals("linear_range", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (spec.From is null || spec.To is null || spec.Step is null)
-                    {
-                        issues.Add(new ValidationIssue
-                        {
-                            Severity = "error",
-                            Code     = "SWEEP_MISSING_RANGE",
-                            Field    = key,
-                            Message  = $"Sweep '{key}': linear_range requires 'from', 'to', and 'step'."
-                        });
-                        continue;
-                    }
-                    sweeps.Add((key, LinearRange(spec.From.Value, spec.To.Value, spec.Step.Value)));
-                }
-                else if (spec.Type.Equals("fixed", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (spec.Values is { Length: > 0 })
-                        sweeps.Add((key, new object[] { spec.Values[0] }));
-                    else if (spec.From is not null)
-                        sweeps.Add((key, new object[] { spec.From.Value }));
-                    else
-                        issues.Add(new ValidationIssue { Severity = "error", Code = "INVALID_SWEEP_SPEC", Field = key, Message = $"Sweep '{key}': fixed requires 'values' or 'from'." });
-                }
-                else if (spec.Type.Equals("enum_list", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (spec.Values is null || spec.Values.Length == 0)
-                    {
-                        issues.Add(new ValidationIssue { Severity = "error", Code = "INVALID_SWEEP_SPEC", Field = key, Message = $"Sweep '{key}': enum_list requires a non-empty 'values' array." });
-                        continue;
-                    }
-                    sweeps.Add((key, spec.Values));
-                }
-                else if (spec.Type.Equals("random_uniform", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (spec.From is null || spec.To is null)
-                    {
-                        issues.Add(new ValidationIssue { Severity = "error", Code = "INVALID_SWEEP_SPEC", Field = key, Message = $"Sweep '{key}': random_uniform requires 'from' and 'to'." });
-                        continue;
-                    }
-                    var count  = spec.Count ?? 5;
-                    var random = new Random(42);
-                    var vals   = new object[count];
-                    for (var i = 0; i < count; i++)
-                        vals[i] = Math.Round(spec.From.Value + random.NextDouble() * (spec.To.Value - spec.From.Value), 6);
-                    sweeps.Add((key, vals));
-                }
-                else if (spec.Type.Equals("geometric_range", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (spec.From is null || spec.To is null || spec.Step is null)
-                    {
-                        issues.Add(new ValidationIssue { Severity = "error", Code = "INVALID_SWEEP_SPEC", Field = key, Message = $"Sweep '{key}': geometric_range requires 'from', 'to', and 'step' (ratio)." });
-                        continue;
-                    }
-                    if (spec.From.Value <= 0 || spec.Step.Value <= 1)
-                    {
-                        issues.Add(new ValidationIssue { Severity = "error", Code = "INVALID_SWEEP_SPEC", Field = key, Message = $"Sweep '{key}': geometric_range requires 'from' > 0 and 'step' > 1." });
-                        continue;
-                    }
-                    sweeps.Add((key, GeometricRange(spec.From.Value, spec.To.Value, spec.Step.Value)));
-                }
-                else
-                {
-                    issues.Add(new ValidationIssue
-                    {
-                        Severity = "error",
-                        Code     = "UNSUPPORTED_SWEEP_TYPE",
-                        Field    = key,
-                        Message  = $"Sweep type '{spec.Type}' is not supported. Supported types: fixed, linear_range, geometric_range, enum_list, random_uniform."
-                    });
-                }
+                var (values, issue) = ExpandSweep(key, spec);
+                if (issue is not null) issues.Add(issue);
+                if (values is not null) sweeps.Add((key, values));
             }
         }
 
@@ -161,6 +93,79 @@ public sealed class GeneratorPipeline
             Sweeps         = sweeps
         };
     }
+
+    /// <summary>
+    /// Expands a single sweep specification into an array of axis values.
+    /// Returns either the expanded values, or a <see cref="ValidationIssue"/>
+    /// explaining why the sweep is malformed. The two outputs are mutually
+    /// exclusive.
+    /// </summary>
+    private static (object[]? Values, ValidationIssue? Issue) ExpandSweep(
+        string key, SweepSpec spec) =>
+        spec.Type.ToLowerInvariant() switch
+        {
+            "fixed"           => ExpandFixed(key, spec),
+            "linear_range"    => ExpandLinearRange(key, spec),
+            "geometric_range" => ExpandGeometricRange(key, spec),
+            "enum_list"       => ExpandEnumList(key, spec),
+            "random_uniform"  => ExpandRandomUniform(key, spec),
+            _                 => (null, SweepError(key, "UNSUPPORTED_SWEEP_TYPE",
+                $"Sweep type '{spec.Type}' is not supported. Supported types: " +
+                "fixed, linear_range, geometric_range, enum_list, random_uniform."))
+        };
+
+    private static (object[]?, ValidationIssue?) ExpandFixed(string key, SweepSpec spec)
+    {
+        if (spec.Values is { Length: > 0 }) return (new[] { spec.Values[0] }, null);
+        if (spec.From is not null)          return (new object[] { spec.From.Value }, null);
+        return (null, SweepError(key, "INVALID_SWEEP_SPEC",
+            $"Sweep '{key}': fixed requires 'values' or 'from'."));
+    }
+
+    private static (object[]?, ValidationIssue?) ExpandLinearRange(string key, SweepSpec spec)
+    {
+        if (spec.From is null || spec.To is null || spec.Step is null)
+            return (null, SweepError(key, "SWEEP_MISSING_RANGE",
+                $"Sweep '{key}': linear_range requires 'from', 'to', and 'step'."));
+        return (LinearRange(spec.From.Value, spec.To.Value, spec.Step.Value), null);
+    }
+
+    private static (object[]?, ValidationIssue?) ExpandGeometricRange(string key, SweepSpec spec)
+    {
+        if (spec.From is null || spec.To is null || spec.Step is null)
+            return (null, SweepError(key, "INVALID_SWEEP_SPEC",
+                $"Sweep '{key}': geometric_range requires 'from', 'to', and 'step' (ratio)."));
+        if (spec.From.Value <= 0 || spec.Step.Value <= 1)
+            return (null, SweepError(key, "INVALID_SWEEP_SPEC",
+                $"Sweep '{key}': geometric_range requires 'from' > 0 and 'step' > 1."));
+        return (GeometricRange(spec.From.Value, spec.To.Value, spec.Step.Value), null);
+    }
+
+    private static (object[]?, ValidationIssue?) ExpandEnumList(string key, SweepSpec spec)
+    {
+        if (spec.Values is null || spec.Values.Length == 0)
+            return (null, SweepError(key, "INVALID_SWEEP_SPEC",
+                $"Sweep '{key}': enum_list requires a non-empty 'values' array."));
+        return (spec.Values, null);
+    }
+
+    private static (object[]?, ValidationIssue?) ExpandRandomUniform(string key, SweepSpec spec)
+    {
+        if (spec.From is null || spec.To is null)
+            return (null, SweepError(key, "INVALID_SWEEP_SPEC",
+                $"Sweep '{key}': random_uniform requires 'from' and 'to'."));
+
+        var count  = spec.Count ?? 5;
+        var random = new Random(42);
+        var range  = spec.To.Value - spec.From.Value;
+        var values = new object[count];
+        for (var i = 0; i < count; i++)
+            values[i] = Math.Round(spec.From.Value + random.NextDouble() * range, 6);
+        return (values, null);
+    }
+
+    private static ValidationIssue SweepError(string key, string code, string message) =>
+        new() { Severity = "error", Code = code, Field = key, Message = message };
 
     public GenerateResult MaterializeAndFilter(
         Profile                                            profile,

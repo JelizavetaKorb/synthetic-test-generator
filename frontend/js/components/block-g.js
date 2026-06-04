@@ -1,6 +1,7 @@
 import { createCollapsibleBlock } from '../utils/dom.js';
 import { createField } from '../utils/form.js';
 import { getState, setState } from '../state.js';
+import { humanizeValue } from '../utils/field-labels.js';
 
 function renderSuggestions(suggestEl, listEl, usedExprs) {
   suggestEl.innerHTML = '';
@@ -34,7 +35,7 @@ function renderAssertionList(listEl, suggestEl, usedExprs) {
       const w = document.createElement('div'); w.className = 'field-wrapper';
       w.appendChild(Object.assign(document.createElement('label'), { textContent: lbl }));
       const sel = document.createElement('select');
-      opts.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; if (v === item[key]) o.selected = true; sel.appendChild(o); });
+      opts.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = humanizeValue(v); if (v === item[key]) o.selected = true; sel.appendChild(o); });
       sel.setAttribute('data-field', `assertions.${idx}.${key}`); sel.addEventListener('change', () => upd(key, sel.value)); w.appendChild(sel); return w;
     };
     const idW = document.createElement('div'); idW.className = 'field-wrapper';

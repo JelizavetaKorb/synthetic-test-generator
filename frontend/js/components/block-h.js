@@ -1,6 +1,7 @@
 import { createCollapsibleBlock } from '../utils/dom.js';
 import { createField } from '../utils/form.js';
 import { getState, setState } from '../state.js';
+import { humanizeValue } from '../utils/field-labels.js';
 
 const TYPE_DEFS = {
   fixed: { value: null },
@@ -60,7 +61,7 @@ function renderSweepEntry(name, cfg, mapEl) {
   const typeW = document.createElement('div'); typeW.className = 'field-wrapper';
   typeW.appendChild(Object.assign(document.createElement('label'), { textContent: 'Strategy' }));
   const typeSel = document.createElement('select'); typeSel.setAttribute('data-field', `sweep_parameters.${name}.type`);
-  Object.keys(TYPE_DEFS).forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; if (v === cfg.type) o.selected = true; typeSel.appendChild(o); });
+  Object.keys(TYPE_DEFS).forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = humanizeValue(v); if (v === cfg.type) o.selected = true; typeSel.appendChild(o); });
   typeSel.addEventListener('change', () => {
     const t = typeSel.value; const cur = getState('sweep_parameters') || {};
     const newCfg = { type: t, ...TYPE_DEFS[t] };
