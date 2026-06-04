@@ -1,6 +1,6 @@
 import { createElement } from '../utils/dom.js';
 import { getFullState, flattenStateToOverrides, setState } from '../state.js';
-import { generate, exportScenarios } from '../api.js';
+import { generate } from '../api.js';
 import { toggle as togglePreview } from './json-preview.js';
 import { showIssues, clearIssues, clearFieldErrors } from './validation-panel.js';
 import { showResults, hideResults } from './results-panel.js';
@@ -89,31 +89,6 @@ async function handleGenerate(btn, allowWarnings) {
   }
 }
 
-async function handleExportJson(btn) {
-  clearFieldErrors();
-  btn.disabled = true;
-  btn.textContent = 'Exporting...';
-  try {
-    const s = getFullState();
-    const name = (s.name && s.name.trim()) ? s.name.trim() : 'scenario-config';
-    let blob;
-    try {
-      blob = await exportScenarios([s], 'json');
-    } catch {
-      blob = new Blob([JSON.stringify(s, null, 2)], { type: 'application/json' });
-    }
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${name}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Export JSON';
-  }
-}
-
 export function render(container) {
   const bar = createElement('div', { class: 'action-bar' });
 
@@ -123,9 +98,6 @@ export function render(container) {
   const previewBtn = createElement('button', { class: 'btn' }, ['Preview']);
   previewBtn.addEventListener('click', togglePreview);
 
-  const exportBtn = createElement('button', { class: 'btn' }, ['Export JSON']);
-  exportBtn.addEventListener('click', () => handleExportJson(exportBtn));
-
-  [generateBtn, previewBtn, exportBtn].forEach(el => bar.appendChild(el));
+  [generateBtn, previewBtn].forEach(el => bar.appendChild(el));
   container.appendChild(bar);
 }
