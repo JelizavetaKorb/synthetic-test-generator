@@ -484,75 +484,16 @@ textarea.field-has-error {
 }
 
 .inline-field-error {
-  position: relative;
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 7px 10px;
-  margin-bottom: 4px;
+  display: block;
   font-size: 12px;
-  line-height: 1.45;
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
+  margin-bottom: 2px;
   scroll-margin-top: 110px;
-  animation: inline-error-in 180ms ease-out;
 }
+.inline-field-error--error   { color: var(--danger); }
+.inline-field-error--warning { color: var(--warning); }
 
-.inline-field-error::after {
-  content: '';
-  position: absolute;
-  left: 14px;
-  bottom: -6px;
-  width: 10px;
-  height: 10px;
-  background: inherit;
-  border-right: 1px solid;
-  border-bottom: 1px solid;
-  border-color: inherit;
-  transform: rotate(45deg);
-}
-
-.inline-field-error__icon {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  margin-top: 1px;
-  border-radius: 50%;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--surface);
-}
-
-.inline-field-error__text { min-width: 0; overflow-wrap: anywhere; }
-.inline-field-error__text > div + div { margin-top: 2px; }
-
-.inline-field-error--error {
-  color: var(--danger);
-  background: var(--danger-soft);
-  border-color: rgba(165, 90, 85, 0.28);
-}
-.inline-field-error--error .inline-field-error__icon { background: var(--danger); }
-
-.inline-field-error--warning {
-  color: var(--warning);
-  background: var(--warning-soft);
-  border-color: rgba(160, 124, 68, 0.28);
-}
-.inline-field-error--warning .inline-field-error__icon { background: var(--warning); }
-
+/* inputs placed directly in a list-item grid: let the message span the whole row */
 .list-item > .inline-field-error { grid-column: 1 / -1; }
-
-@keyframes inline-error-in {
-  from { opacity: 0; transform: translateY(-3px); }
-  to   { opacity: 1; transform: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .inline-field-error { animation: none; }
-}
 
 .issues-panel { scroll-margin-top: 90px; }
 
@@ -838,12 +779,23 @@ textarea.field-has-error {
   margin-bottom: 6px;
 }
 
-.issues-panel {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 18px 32px;
+/* same column as #main-content so the panel lines up with the blocks below */
+#validation-container {
   max-width: 1180px;
   margin: 0 auto;
+}
+
+.issues-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  padding: 16px 22px;
+  margin: 28px 32px 0;
+}
+
+@media (max-width: 720px) {
+  .issues-panel { margin: 18px 16px 0; }
 }
 
 .validation-summary {

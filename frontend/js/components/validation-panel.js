@@ -37,19 +37,12 @@ function buildInlineError(fieldIssues) {
   const box = document.createElement('div');
   box.className = `inline-field-error inline-field-error--${severity}`;
   box.setAttribute('role', severity === 'error' ? 'alert' : 'status');
-  const icon = document.createElement('span');
-  icon.className = 'inline-field-error__icon';
-  icon.textContent = '!';
-  const text = document.createElement('div');
-  text.className = 'inline-field-error__text';
   fieldIssues.forEach(issue => {
     const line = document.createElement('div');
     line.textContent = issue.message;
     line.title = `${issue.severity || 'error'}${issue.code ? ' [' + issue.code + ']' : ''}`;
-    text.appendChild(line);
+    box.appendChild(line);
   });
-  box.appendChild(icon);
-  box.appendChild(text);
   return box;
 }
 
