@@ -1,6 +1,6 @@
 {
   "profileId": "safety-critical-asil-b",
-  "name": "Safety Critical — ASIL B",
+  "name": "Safety Critical - ASIL B",
   "description": "ASIL B safety scenario. Requires hazard linkage and at least one major-severity assertion; suitable for SIL/HIL execution.",
   "defaultParameters": {
     "priority": "high",

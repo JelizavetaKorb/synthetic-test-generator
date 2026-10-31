@@ -1,6 +1,6 @@
 {
   "profileId": "safety-critical-asil-a",
-  "name": "Safety Critical — ASIL A",
+  "name": "Safety Critical - ASIL A",
   "description": "ASIL A baseline safety scenario. Light formal-evidence requirements: a hazard reference and at least one major-severity assertion covering the safety goal.",
   "defaultParameters": {
     "priority": "medium",

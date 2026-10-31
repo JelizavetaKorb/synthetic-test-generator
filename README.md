@@ -10,8 +10,8 @@ A web tool for generating synthetic test scenarios for automotive ECU software. 
 
 | Layer    | Technology |
 |----------|-----------|
-| Frontend | Vanilla JS, static HTML/CSS — deployed on Vercel |
-| API      | ASP.NET Core 8 — deployed on Render |
+| Frontend | Vanilla JS, static HTML/CSS, deployed on Vercel |
+| API      | ASP.NET Core 8, deployed on Render |
 | Core     | .NET 8 class library (generation, validation, formatting) |
 | Tests    | xUnit + FluentAssertions + JsonSchema.Net |
 
@@ -25,4 +25,4 @@ backend/
   TestGen.Tests/  Unit + schema compliance tests
 ```
 
-> Bachelor's thesis project — Jelizaveta Korb
+> Bachelor's thesis project by Jelizaveta Korb

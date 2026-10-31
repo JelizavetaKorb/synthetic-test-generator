@@ -1,6 +1,6 @@
 {
   "profileId": "safety-critical-asil-c",
-  "name": "Safety Critical — ASIL C",
+  "name": "Safety Critical - ASIL C",
   "description": "ASIL C safety scenario. Requires hazard linkage, at least one critical-severity assertion, and execution on HIL or lab (simulation-only will emit a warning).",
   "defaultParameters": {
     "priority": "high",

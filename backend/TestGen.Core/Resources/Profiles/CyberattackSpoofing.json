@@ -1,6 +1,6 @@
 {
   "profileId": "cyberattack-spoofing",
-  "name": "Cyberattack — Spoofing",
+  "name": "Cyberattack - Spoofing",
   "description": "Bus-level spoofing attack: a malicious node injects forged frames for a sensor signal. Validates intrusion detection, plausibility checks, and degraded-mode behaviour.",
   "defaultParameters": {
     "priority": "high",

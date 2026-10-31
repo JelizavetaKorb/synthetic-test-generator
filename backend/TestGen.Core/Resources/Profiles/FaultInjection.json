@@ -1,6 +1,6 @@
 {
   "profileId": "fault-injection-bus",
-  "name": "Fault Injection — Bus",
+  "name": "Fault Injection - Bus",
   "description": "Inject faults into the communication bus (CAN, CAN-FD, FlexRay) to verify ECU error handling and recovery. Validates detection time, failsafe activation, and DTC logging.",
   "defaultParameters": {
     "priority": "medium",

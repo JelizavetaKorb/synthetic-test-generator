@@ -1,6 +1,6 @@
 {
   "profileId": "safety-critical-asil-d",
-  "name": "Safety Critical — ASIL D",
+  "name": "Safety Critical - ASIL D",
   "description": "ASIL D safety-critical test scenario. Validates that the ECU meets the highest automotive safety integrity level requirements including formal assertions, hazard coverage, and failsafe behavior.",
   "defaultParameters": {
     "priority": "medium",
