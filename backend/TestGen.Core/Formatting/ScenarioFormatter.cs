@@ -132,6 +132,15 @@ public sealed class ScenarioFormatter : IScenarioFormatter
             root[outKey] = ToJsonNode(p[key]);
         }
 
+        if (p.TryGetValue("testType", out var testTypeRaw) &&
+            testTypeRaw?.ToString() is { Length: > 0 } testType)
+        {
+            var tags = root["tags"] as JsonArray ?? new JsonArray();
+            var tag  = "test_type:" + testType;
+            if (!tags.Any(t => t?.ToString() == tag)) tags.Add(tag);
+            root["tags"] = tags;
+        }
+
         var ic = new JsonObject();
         foreach (var kvp in p)
         {
@@ -282,6 +291,7 @@ public sealed class ScenarioFormatter : IScenarioFormatter
             "faultInjectionParams",
             "safetyScenarioParams",
             "securityCyberattackParams",
+            "security",
             "ecuCatalogEntry",
             "recommendedAssertions",
             "profile"
@@ -291,6 +301,7 @@ public sealed class ScenarioFormatter : IScenarioFormatter
         {
             if (handledKeys.Contains(kvp.Key)) continue;
             if (droppedRootKeys.Contains(kvp.Key)) continue;
+            if (kvp.Key.StartsWith("security.", StringComparison.Ordinal)) continue;
             if (handledPrefixes.Any(prefix => kvp.Key.StartsWith(prefix, StringComparison.Ordinal)))
                 continue;
 

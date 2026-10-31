@@ -189,6 +189,45 @@ public sealed class SchemaComplianceTests
     }
 
     [Fact]
+    public void SecurityParams_AreDroppedFromOutput()
+    {
+        var s = new ScenarioBuilder()
+            .WithParameter("ecuId",                 "ENGINE-ECU-001")
+            .WithParameter("targetExecution",       "simulation")
+            .WithParameter("security.attackType",   "replay")
+            .WithParameter("security.attackVector", "OBD")
+            .Build();
+        s.ScenarioId = "77777777-7777-7777-7777-777777777777";
+        s.Name       = "security_leak_test";
+
+        using var doc = Sut.FormatOne(s, null, Req());
+        doc.RootElement.TryGetProperty("security", out _).Should().BeFalse(
+            "'security' is not in the professor's schema and must be dropped");
+
+        AssertValid(doc);
+    }
+
+    [Fact]
+    public void TestType_IsRecordedAsTag()
+    {
+        var s = new ScenarioBuilder()
+            .WithParameter("ecuId",           "ENGINE-ECU-001")
+            .WithParameter("targetExecution", "simulation")
+            .WithParameter("tags",            new List<string> { "smoke" })
+            .WithParameter("testType",        "security_cyberattack")
+            .Build();
+        s.ScenarioId = "88888888-8888-8888-8888-888888888888";
+        s.Name       = "test_type_tag_test";
+
+        using var doc = Sut.FormatOne(s, null, Req());
+        var tags = doc.RootElement.GetProperty("tags").EnumerateArray()
+            .Select(t => t.GetString()).ToList();
+        tags.Should().Equal("smoke", "test_type:security_cyberattack");
+
+        AssertValid(doc);
+    }
+
+    [Fact]
     public void ConstraintExpressions_GoUnderAdvanced()
     {
         var s = new ScenarioBuilder()

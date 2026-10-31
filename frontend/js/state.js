@@ -125,6 +125,14 @@ export function resetState() {
   notify();
 }
 
+// restores test-type-specific params to defaults so values from a previous type don't linger
+export function resetTestTypeParams() {
+  const fresh = createDefaultState();
+  ['security', 'unit_test_params', 'integration_test_params', 'stress_endurance_params']
+    .forEach(key => { state[key] = fresh[key]; });
+  notify();
+}
+
 // writes a value to a dot-separated path inside the state object
 export function setState(path, value) {
   const parts = path.split('.');
@@ -184,7 +192,7 @@ const FLATTEN_SKIP = new Set([
 
   'faults_enabled', 'ecu_catalog_unavailable',
   'unit_test_params', 'stress_endurance_params',
-  'integration_test_params',
+  'integration_test_params', 'security',
 ]);
 
 // maps snake_case state paths to camelCase backend keys for plain arrays

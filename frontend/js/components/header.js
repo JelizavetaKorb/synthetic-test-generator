@@ -1,7 +1,7 @@
 import { createElement } from '../utils/dom.js';
 import { BACKEND_TO_STATE } from '../utils/profile-map.js';
 import { getEcuCatalog, getProfiles } from '../api.js';
-import { resetState, getFullState, setState, setLockedFields, clearLockedFields } from '../state.js';
+import { resetState, resetTestTypeParams, getFullState, setState, setLockedFields, clearLockedFields } from '../state.js';
 import { clearIssues } from './validation-panel.js';
 import { hideResults } from './results-panel.js';
 
@@ -84,6 +84,7 @@ function handleEcuChange(selectEl) {
 }
 
 function handleTestTypeChange(selectEl) {
+  resetTestTypeParams();
   setState('test_type', selectEl.value);
   document.dispatchEvent(new CustomEvent('rerender-editor'));
 }

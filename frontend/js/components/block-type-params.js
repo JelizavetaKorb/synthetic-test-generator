@@ -50,6 +50,10 @@ export function render(container) {
   if (!entry) return;
   const [title, fn] = entry;
   const block = createCollapsibleBlock(title, 'block-type-params', content => {
+    content.appendChild(Object.assign(document.createElement('p'), {
+      className: 'type-params-note',
+      textContent: 'Reference only: the scenario schema has no fields for these parameters, so they are not included in generated scenarios. The test type itself is recorded as a "test_type:..." tag.'
+    }));
     fn(content);
     content.appendChild(Object.assign(document.createElement('div'), { className: 'block-errors' }));
   });
