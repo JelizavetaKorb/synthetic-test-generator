@@ -19,20 +19,66 @@ export function clearFieldErrors() {
 
 let currentInlineIssues = [];
 
+function lineFor(target) {
+  return target.closest('.checkbox-group-options') || target.closest('.input-row, .checkbox-item') || target;
+}
+
+function expandBlockOf(el) {
+  const block = el.closest('.collapsible-block');
+  const content = block && block.querySelector('.block-content');
+  if (!content || !content.classList.contains('collapsed')) return;
+  content.classList.remove('collapsed');
+  const indicator = block.querySelector('.toggle-indicator');
+  if (indicator) indicator.textContent = '\u25BC';
+}
+
+function buildInlineError(fieldIssues) {
+  const severity = fieldIssues.some(i => (i.severity || 'error') === 'error') ? 'error' : 'warning';
+  const box = document.createElement('div');
+  box.className = `inline-field-error inline-field-error--${severity}`;
+  box.setAttribute('role', severity === 'error' ? 'alert' : 'status');
+  const icon = document.createElement('span');
+  icon.className = 'inline-field-error__icon';
+  icon.textContent = '!';
+  const text = document.createElement('div');
+  text.className = 'inline-field-error__text';
+  fieldIssues.forEach(issue => {
+    const line = document.createElement('div');
+    line.textContent = issue.message;
+    line.title = `${issue.severity || 'error'}${issue.code ? ' [' + issue.code + ']' : ''}`;
+    text.appendChild(line);
+  });
+  box.appendChild(icon);
+  box.appendChild(text);
+  return box;
+}
+
 function injectFieldErrors(issues) {
-  document.querySelectorAll('.inline-field-error').forEach(el => el.remove());
-  document.querySelectorAll('.field-has-error').forEach(el => el.classList.remove('field-has-error'));
+  clearFieldErrors();
+  const byField = new Map();
   issues.forEach(issue => {
     if (!issue.field) return;
-    const target = document.querySelector(`[data-field="${CSS.escape(issue.field)}"]`);
+    if (!byField.has(issue.field)) byField.set(issue.field, []);
+    byField.get(issue.field).push(issue);
+  });
+  byField.forEach((fieldIssues, field) => {
+    const target = document.querySelector(`[data-field="${CSS.escape(field)}"]`);
     if (!target) return;
     target.classList.add('field-has-error');
-    const span = document.createElement('span');
-    span.className = `inline-field-error inline-field-error--${issue.severity || 'error'}`;
-    span.textContent = issue.message;
-    span.title = `${issue.severity || 'error'}${issue.code ? ' [' + issue.code + ']' : ''}`;
-    target.parentNode.insertBefore(span, target.nextSibling);
+    const line = lineFor(target);
+    line.parentNode.insertBefore(buildInlineError(fieldIssues), line);
+    expandBlockOf(target);
   });
+}
+
+function scrollToFirstError() {
+  const boxes = Array.from(document.querySelectorAll('.inline-field-error--error'));
+  const first = boxes.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)[0];
+  const target = first || document.getElementById('issues-panel');
+  if (!target) return;
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const input = first && first.parentNode.querySelector('.field-has-error');
+  if (input && !input.disabled) input.focus({ preventScroll: true });
 }
 
 function setupInlineErrorPersistence() {
@@ -75,6 +121,7 @@ export function showIssues(issues, options = {}) {
   if (info.length) {
     info.forEach(issue => panel.appendChild(buildIssueRow(issue, options)));
   }
+  if (errors.length) requestAnimationFrame(scrollToFirstError);
 }
 
 function buildIssueRow(issue, options) {
