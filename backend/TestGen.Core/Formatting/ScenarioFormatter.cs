@@ -56,14 +56,16 @@ public sealed class ScenarioFormatter : IScenarioFormatter
             ["timing.repetitions"]                       = "repetitions",
             ["timing.interTestDelayMs"]                  = "inter_test_delay_ms",
 
-            ["bus.protocol"]                             = "bus_type",
-            ["bus.baudRateKbps"]                         = "bitrate_kbps",
+            ["bus.busName"]                              = "bus_name",
+            ["bus.busType"]                              = "bus_type",
+            ["bus.bitrateKbps"]                          = "bitrate_kbps",
+            ["bus.busLoadPct"]                           = "bus_load_pct",
+            ["bus.messageJitterMs"]                      = "message_jitter_ms",
             ["busType"]                                  = "bus_type",
             ["bitrateKbps"]                              = "bitrate_kbps",
             ["busLoadPct"]                               = "bus_load_pct",
             ["messageJitterMs"]                          = "message_jitter_ms",
 
-            ["reporting.captureSignals"]                 = "signals_to_record",
             ["signalsToRecord"]                           = "signals_to_record",
 
             ["environmental_perturbations.temperature_ramp.start_C"]        = "temperature_ramp.start_C",
@@ -74,7 +76,6 @@ public sealed class ScenarioFormatter : IScenarioFormatter
             ["environmental_perturbations.temperature_ramp.rate_c_per_min"] = "temperature_ramp.rate_C_per_min",
             ["environmental_perturbations.EMI_level"]                       = "EMI_level",
             ["environmental_perturbations.emi_level"]                       = "EMI_level",
-            ["reporting.captureDtcs"]                    = "capture_dtcs",
             ["reporting.format"]                         = "report_format",
             ["reporting.logLevel"]                       = "log_level",
             ["reporting.telemetryFrequencyHz"]           = "telemetry_frequency_hz",

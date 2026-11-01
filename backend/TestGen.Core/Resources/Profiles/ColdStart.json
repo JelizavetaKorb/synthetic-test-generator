@@ -27,8 +27,8 @@
 
     "targetExecution": "simulation",
 
-    "bus.protocol": "CAN",
-    "bus.baudRateKbps": 500,
+    "bus.busType": "CAN",
+    "bus.bitrateKbps": 500,
     "bus.busName": "PowertrainCAN",
     "bus.busLoadPct": 10,
     "bus.messageJitterMs": 0,
@@ -56,14 +56,9 @@
       }
     ],
 
-    "timing.startupTimeoutMs": 3000,
-    "timing.warmupDurationS": 120,
-    "timing.measurementIntervalMs": 100,
     "timing.repetitions": 1,
     "timing.interTestDelayMs": 1000,
 
-    "reporting.captureSignals": true,
-    "reporting.captureDtcs": true,
     "reporting.format": "JSON",
     "reporting.logLevel": "INFO",
     "reporting.telemetryFrequencyHz": 10,
@@ -84,7 +79,7 @@
     "startupTimeMs < 3000",
     "batteryVoltageV >= 9.0",
     "noFaultCodesOnBoot",
-    "engineRpmStable after warmupDurationS",
+    "engineRpmStable after 120 s warmup",
     "coolantTempC rising monotonically during warmup",
     "noCommunicationLoss on CAN during startup"
   ]

@@ -31,8 +31,8 @@
     "asilLevel": "D",
     "hazardId": "HAZ-001",
     "safetyGoal": "Prevent unintended acceleration",
-    "safety.riskWeight": 0.95,
-    "safety.recoveryBehaviourExpected": true,
+    "riskWeight": 0.95,
+    "recoveryBehaviourExpected": true,
 
     "assertions[0].id": "A1",
     "assertions[0].type": "STL",
@@ -77,8 +77,6 @@
     "timing.repetitions": 1,
     "timing.interTestDelayMs": 1000,
 
-    "reporting.captureSignals": true,
-    "reporting.captureDtcs": true,
     "reporting.format": "JSON",
     "reporting.logLevel": "INFO",
     "reporting.telemetryFrequencyHz": 10,
@@ -93,7 +91,7 @@
     "targetExecution",
     "initialConditions.ignitionKey",
     "ecuPowerState",
-    "safety.riskWeight"
+    "riskWeight"
   ],
   "recommendedAssertions": [
     "no_unintended_acceleration",

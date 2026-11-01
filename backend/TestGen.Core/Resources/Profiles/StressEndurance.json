@@ -33,9 +33,9 @@
     "bus.messageJitterMs": 5,
 
     "environmentalPerturbations.emiLevel": "medium",
-    "environmentalPerturbations.temperatureRamp.startC": 70,
-    "environmentalPerturbations.temperatureRamp.endC": 95,
-    "environmentalPerturbations.temperatureRamp.rateCPerMin": 5,
+    "environmental_perturbations.temperature_ramp.start_C": 70,
+    "environmental_perturbations.temperature_ramp.end_C": 95,
+    "environmental_perturbations.temperature_ramp.rate_C_per_min": 5,
 
     "testDurationMs": 3600000,
     "timeResolutionMs": 50,

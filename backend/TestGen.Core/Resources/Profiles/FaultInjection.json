@@ -75,8 +75,6 @@
     "timing.repetitions": 1,
     "timing.interTestDelayMs": 1000,
 
-    "reporting.captureSignals": true,
-    "reporting.captureDtcs": true,
     "reporting.format": "JSON",
     "reporting.logLevel": "INFO",
     "reporting.telemetryFrequencyHz": 10,

@@ -17,7 +17,7 @@
     "initialConditions.gpsFixQuality": "GOOD",
     "initialConditions.localizationErrorM": 0.1,
 
-    "ecuId": "BODY-ECU-001",
+    "ecuId": "ADAS-ECU-001",
     "ecuMode": "NORMAL",
     "ecuTemperatureC": 25,
     "ecuPowerState": "ON",
@@ -29,15 +29,15 @@
     "asilLevel": "A",
     "hazardId": "HAZ-A-001",
     "safetyGoal": "Maintain warning-system availability during normal operation",
-    "safety.riskWeight": 0.25,
-    "safety.recoveryBehaviourExpected": true,
+    "riskWeight": 0.25,
+    "recoveryBehaviourExpected": true,
 
     "assertions[0].id": "A1",
     "assertions[0].type": "metric",
     "assertions[0].expr": "warning_indicator_available == true",
     "assertions[0].severity": "major",
 
-    "bus.busName": "BodyCAN",
+    "bus.busName": "ADASCAN",
     "bus.busType": "CAN",
     "bus.bitrateKbps": 500,
     "bus.busLoadPct": 20,

@@ -29,8 +29,8 @@
     "asilLevel": "C",
     "hazardId": "HAZ-C-001",
     "safetyGoal": "Prevent unintended lane departure intervention",
-    "safety.riskWeight": 0.75,
-    "safety.recoveryBehaviourExpected": true,
+    "riskWeight": 0.75,
+    "recoveryBehaviourExpected": true,
 
     "assertions[0].id": "A1",
     "assertions[0].type": "STL",

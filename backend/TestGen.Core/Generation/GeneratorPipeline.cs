@@ -203,9 +203,9 @@ public sealed class GeneratorPipeline
             ["repetitions"]             = "timing.repetitions",
             ["inter_test_delay_ms"]     = "timing.interTestDelayMs",
 
-            ["bus_load_pct"]            = "busLoadPct",
-            ["message_jitter_ms"]       = "messageJitterMs",
-            ["bitrate_kbps"]            = "bitrateKbps",
+            ["bus_load_pct"]            = "bus.busLoadPct",
+            ["message_jitter_ms"]       = "bus.messageJitterMs",
+            ["bitrate_kbps"]            = "bus.bitrateKbps",
 
             ["telemetry_frequency_hz"]  = "reporting.telemetryFrequencyHz",
             ["log_level"]               = "reporting.logLevel",
