@@ -75,6 +75,14 @@ function renderSweepEntry(name, cfg, mapEl) {
   row.appendChild(rm); mapEl.appendChild(row);
 }
 
+// spec fields the generator does not read yet: kept visible for completeness but not editable
+function notImplemented(fieldEl) {
+  fieldEl.querySelectorAll('select, input, textarea').forEach(el => { el.disabled = true; });
+  const lbl = fieldEl.querySelector('label');
+  if (lbl) lbl.textContent += ' (not implemented yet)';
+  return fieldEl;
+}
+
 export function render(container) {
   const block = createCollapsibleBlock('H. Parameter Sweep / Sampling Strategy', 'block-h', content => {
     const mapEl = document.createElement('div'); mapEl.className = 'dynamic-list-items';
@@ -107,8 +115,8 @@ export function render(container) {
     [
       createField({ label: 'Combinatorial Strategy', path: 'combinatorial_strategy', type: 'select', options: ['cartesian','pairwise','twise','random_sample','guided_by_search'], defaultValue: 'pairwise' }),
       createField({ label: 'Max Generated Scenarios', path: 'max_generated_scenarios', type: 'number', min: 1, step: 1, defaultValue: 100 }),
-      createField({ label: 'Selection Strategy', path: 'selection_strategy', type: 'select', options: ['all','filter_by_constraints','search_select_topK'], defaultValue: 'all' }),
-      createField({ label: 'Search Algorithm', path: 'search_algorithm.name', type: 'select', options: ['none','GA','PSO','BayesianOpt','RandomForest-active','RL'], defaultValue: 'none' }),
+      notImplemented(createField({ label: 'Selection Strategy', path: 'selection_strategy', type: 'select', options: ['all','filter_by_constraints','search_select_topK'], defaultValue: 'all' })),
+      notImplemented(createField({ label: 'Search Algorithm', path: 'search_algorithm.name', type: 'select', options: ['none','GA','PSO','BayesianOpt','RandomForest-active','RL'], defaultValue: 'none' })),
     ].forEach(el => content.appendChild(el));
     const paramsW = document.createElement('div'); paramsW.className = 'field-wrapper';
     paramsW.appendChild(Object.assign(document.createElement('label'), { textContent: 'Algorithm Params (JSON)' }));
@@ -116,7 +124,7 @@ export function render(container) {
     const p = getState('search_algorithm.params');
     paramsTA.value = (p && typeof p === 'object') ? JSON.stringify(p) : (p || '{}');
     paramsTA.addEventListener('input', () => { try { setState('search_algorithm.params', JSON.parse(paramsTA.value)); } catch { setState('search_algorithm.params', paramsTA.value); } });
-    paramsW.appendChild(paramsTA); content.appendChild(paramsW);
+    paramsW.appendChild(paramsTA); content.appendChild(notImplemented(paramsW));
     content.appendChild(Object.assign(document.createElement('div'), { className: 'block-errors' }));
   });
   container.appendChild(block);

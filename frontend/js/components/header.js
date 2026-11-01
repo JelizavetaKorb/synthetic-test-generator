@@ -1,7 +1,7 @@
 import { createElement } from '../utils/dom.js';
 import { BACKEND_TO_STATE } from '../utils/profile-map.js';
 import { getEcuCatalog, getProfiles } from '../api.js';
-import { resetState, resetTestTypeParams, getFullState, setState, setLockedFields, clearLockedFields } from '../state.js';
+import { resetState, resetSetupFields, resetTestTypeParams, getFullState, setState, setLockedFields, clearLockedFields } from '../state.js';
 import { clearIssues } from './validation-panel.js';
 import { hideResults } from './results-panel.js';
 
@@ -130,16 +130,14 @@ function loadProfiles(selectEl) {
 // applies profile defaults, locks profile-locked fields and stores recommended assertions
 function handleProfileChange(selectEl) {
   const id = selectEl.value;
-  if (!id) {
-    clearLockedFields();
-    setState('profile', null);
-    setState('recommended_assertions', []);
+  const profile = profilesCache.find(p => p.profileId === id);
+  if (id && !profile) return;
+  clearLockedFields();
+  resetSetupFields();
+  if (!profile) {
     document.dispatchEvent(new CustomEvent('rerender-editor'));
     return;
   }
-  const profile = profilesCache.find(p => p.profileId === id);
-  if (!profile) return;
-  clearLockedFields();
   Object.entries(profile.defaultParameters || {}).forEach(([key, val]) => {
     const path = BACKEND_TO_STATE[key];
     if (path) setState(path, val);
@@ -149,7 +147,18 @@ function handleProfileChange(selectEl) {
   );
   setState('recommended_assertions', profile.recommendedAssertions || []);
   setState('profile', profile.name || '');
+  syncEcuSelect();
   document.dispatchEvent(new CustomEvent('rerender-editor'));
+}
+
+// keeps the header ECU dropdown and catalog entry in line with an ECU set by the profile
+function syncEcuSelect() {
+  const ecuSelect = document.getElementById('ecu-select');
+  const ecuId = getFullState().ecu_id;
+  if (!ecuSelect || !ecuId || ecuSelect.value === ecuId) return;
+  if (!Array.from(ecuSelect.options).some(o => o.value === ecuId)) return;
+  ecuSelect.value = ecuId;
+  handleEcuChange(ecuSelect);
 }
 
 function handleReset(ecuSelect, testTypeSelect, profileSelect) {

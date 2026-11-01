@@ -27,20 +27,6 @@ async function request(method, path, body) {
   return isJson ? res.json() : res.text();
 }
 
-async function requestBlob(method, path, body) {
-  const options = { method, headers: { 'Content-Type': 'application/json' } };
-  if (body !== undefined) options.body = JSON.stringify(body);
-  const res = await fetch(`${ENV.API_BASE_URL}${path}`, options);
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    const err = new Error(`HTTP ${res.status}`);
-    err.status = res.status;
-    err.payload = text;
-    throw err;
-  }
-  return res.blob();
-}
-
 export function getEcuCatalog() {
   return request('GET', '/ecus');
 }
@@ -51,12 +37,4 @@ export function getProfiles() {
 
 export function generate(data) {
   return request('POST', '/scenarios/generate', data);
-}
-
-export function validateScenario(data) {
-  return request('POST', '/validate', data);
-}
-
-export function exportScenarios(scenarios, format) {
-  return requestBlob('POST', '/scenarios/export', { scenarios, format });
 }

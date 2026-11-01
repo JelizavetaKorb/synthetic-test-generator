@@ -125,6 +125,22 @@ export function resetState() {
   notify();
 }
 
+// fields that describe the scenario itself rather than its test setup; kept when the profile changes
+const PROFILE_SWITCH_KEEP = new Set([
+  'scenario_id', 'name', 'description', 'author', 'project', 'tags',
+  'test_type', 'security', 'unit_test_params', 'integration_test_params', 'stress_endurance_params',
+  'ecu_id', 'ecu_catalog_entry',
+]);
+
+// restores every setup field to its default so values from the previous profile don't linger
+export function resetSetupFields() {
+  const fresh = createDefaultState();
+  Object.keys(fresh).forEach(key => {
+    if (!PROFILE_SWITCH_KEEP.has(key)) state[key] = fresh[key];
+  });
+  notify();
+}
+
 // restores test-type-specific params to defaults so values from a previous type don't linger
 export function resetTestTypeParams() {
   const fresh = createDefaultState();
