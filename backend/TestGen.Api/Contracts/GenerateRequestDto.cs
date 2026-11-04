@@ -11,6 +11,8 @@ public sealed class SweepSpecDto
     public double? Step { get; set; }
     public object[]? Values { get; set; }
     public int? Count { get; set; }
+    public double? Mean { get; set; }
+    public double? Std { get; set; }
 
     public SweepSpec ToDomain() => new()
     {
@@ -19,7 +21,9 @@ public sealed class SweepSpecDto
         To = To,
         Step = Step,
         Values = Values,
-        Count = Count
+        Count = Count,
+        Mean = Mean,
+        Std = Std
     };
 }
 

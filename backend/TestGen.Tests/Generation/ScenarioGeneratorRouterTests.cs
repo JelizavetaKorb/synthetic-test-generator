@@ -22,11 +22,16 @@ public sealed class ScenarioGeneratorRouterTests
         }
     }
 
-    private static ScenarioGeneratorRouter BuildRouter(out SpyGenerator cartesian, out SpyGenerator pairwise)
+    private static ScenarioGeneratorRouter BuildRouter(out SpyGenerator cartesian, out SpyGenerator pairwise) =>
+        BuildRouter(out cartesian, out pairwise, out _);
+
+    private static ScenarioGeneratorRouter BuildRouter(
+        out SpyGenerator cartesian, out SpyGenerator pairwise, out SpyGenerator randomSample)
     {
-        cartesian = new SpyGenerator("cartesian");
-        pairwise  = new SpyGenerator("pairwise");
-        return new ScenarioGeneratorRouter(cartesian, pairwise);
+        cartesian    = new SpyGenerator("cartesian");
+        pairwise     = new SpyGenerator("pairwise");
+        randomSample = new SpyGenerator("random_sample");
+        return new ScenarioGeneratorRouter(cartesian, pairwise, randomSample);
     }
 
     [Fact]
@@ -53,6 +58,20 @@ public sealed class ScenarioGeneratorRouterTests
         pairwise.Called.Should().BeTrue();
         cartesian.Called.Should().BeFalse();
         result.Scenarios[0].Parameters["label"].Should().Be("pairwise");
+    }
+
+    [Fact]
+    public void Generate_RandomSampleStrategy_DelegatesToRandomSample()
+    {
+
+        var router = BuildRouter(out var cartesian, out var pairwise, out var randomSample);
+
+        var result = router.Generate(new GenerateRequest { Strategy = "random_sample" });
+
+        randomSample.Called.Should().BeTrue();
+        cartesian.Called.Should().BeFalse();
+        pairwise.Called.Should().BeFalse();
+        result.Scenarios[0].Parameters["label"].Should().Be("random_sample");
     }
 
     [Fact]

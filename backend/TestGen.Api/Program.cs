@@ -58,6 +58,7 @@ builder.Services.AddSingleton<IValidationRule, AsilRequiresHazardRule>();
 builder.Services.AddSingleton<GeneratorPipeline>();
 builder.Services.AddKeyedSingleton<IGenerationService, CartesianScenarioGenerator>("cartesian");
 builder.Services.AddKeyedSingleton<IGenerationService, PairwiseScenarioGenerator>("pairwise");
+builder.Services.AddKeyedSingleton<IGenerationService, RandomSampleScenarioGenerator>("random_sample");
 builder.Services.AddSingleton<IGenerationService, ScenarioGeneratorRouter>();
 
 builder.Services.AddSingleton<IScenarioFormatter, ScenarioFormatter>();

@@ -103,9 +103,11 @@ public sealed class GeneratorPipeline
             "geometric_range" => ExpandGeometricRange(key, spec),
             "enum_list"       => ExpandEnumList(key, spec),
             "random_uniform"  => ExpandRandomUniform(key, spec),
+            "gaussian"        => ExpandGaussian(key, spec),
+            "latin_hypercube" => ExpandLatinHypercube(key, spec),
             _                 => (null, SweepError(key, "UNSUPPORTED_SWEEP_TYPE",
                 $"Sweep type '{spec.Type}' is not supported. Supported types: " +
-                "fixed, linear_range, geometric_range, enum_list, random_uniform."))
+                "fixed, linear_range, geometric_range, enum_list, random_uniform, gaussian, latin_hypercube."))
         };
 
     private static (object[]?, ValidationIssue?) ExpandFixed(string key, SweepSpec spec)
@@ -162,18 +164,59 @@ public sealed class GeneratorPipeline
         return v;
     }
 
+    public const int DefaultSampleCount = 5;
+    public const int SampleSeed         = 42;
+
     private static (object[]?, ValidationIssue?) ExpandRandomUniform(string key, SweepSpec spec)
     {
         if (spec.From is null || spec.To is null)
             return (null, SweepError(key, "INVALID_SWEEP_SPEC",
                 $"Sweep '{key}': random_uniform requires 'from' and 'to'."));
 
-        var count  = spec.Count ?? 5;
-        var random = new Random(42);
-        var range  = spec.To.Value - spec.From.Value;
+        var from  = spec.From.Value;
+        var range = spec.To.Value - from;
+        return Sample(key, spec, (random, _, _) => from + random.NextDouble() * range);
+    }
+
+    private static (object[]?, ValidationIssue?) ExpandGaussian(string key, SweepSpec spec)
+    {
+        if (spec.Mean is null || spec.Std is null)
+            return (null, SweepError(key, "INVALID_SWEEP_SPEC",
+                $"Sweep '{key}': gaussian requires 'mean' and 'std'."));
+        if (spec.Std.Value < 0)
+            return (null, SweepError(key, "INVALID_SWEEP_SPEC",
+                $"Sweep '{key}': gaussian requires 'std' >= 0."));
+
+        var mean = spec.Mean.Value;
+        var std  = spec.Std.Value;
+        return Sample(key, spec, (random, _, _) =>
+            mean + std * Math.Sqrt(-2.0 * Math.Log(1.0 - random.NextDouble()))
+                       * Math.Cos(2.0 * Math.PI * random.NextDouble()));
+    }
+
+    private static (object[]?, ValidationIssue?) ExpandLatinHypercube(string key, SweepSpec spec)
+    {
+        if (spec.From is null || spec.To is null)
+            return (null, SweepError(key, "INVALID_SWEEP_SPEC",
+                $"Sweep '{key}': latin_hypercube requires 'from' and 'to'."));
+
+        var from  = spec.From.Value;
+        var range = spec.To.Value - from;
+        return Sample(key, spec, (random, i, count) => from + (i + random.NextDouble()) * range / count);
+    }
+
+    private static (object[]?, ValidationIssue?) Sample(
+        string key, SweepSpec spec, Func<Random, int, int, double> draw)
+    {
+        var count = spec.Count ?? DefaultSampleCount;
+        if (count < 1)
+            return (null, SweepError(key, "INVALID_SWEEP_SPEC",
+                $"Sweep '{key}': {spec.Type} requires 'count' >= 1."));
+
+        var random = new Random(SampleSeed);
         var values = new object[count];
         for (var i = 0; i < count; i++)
-            values[i] = Math.Round(spec.From.Value + random.NextDouble() * range, 6);
+            values[i] = Math.Round(draw(random, i, count), 6);
         return (values, null);
     }
 

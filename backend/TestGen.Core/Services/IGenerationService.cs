@@ -22,6 +22,8 @@ public sealed class SweepSpec
     public double? Step { get; set; }
     public object[]? Values { get; set; }
     public int? Count { get; set; }
+    public double? Mean { get; set; }
+    public double? Std { get; set; }
 }
 
 public sealed class GenerateResult

@@ -54,7 +54,7 @@ public sealed class CartesianScenarioGenerator : IGenerationService
         return result;
     }
 
-    private static IEnumerable<IReadOnlyDictionary<string, object>> CartesianProduct(
+    internal static IEnumerable<IReadOnlyDictionary<string, object>> CartesianProduct(
         IReadOnlyList<(string Key, object[] Values)> axes)
     {
         if (axes.Count == 0)
