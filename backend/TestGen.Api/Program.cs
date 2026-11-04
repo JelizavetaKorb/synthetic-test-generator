@@ -62,7 +62,6 @@ builder.Services.AddKeyedSingleton<IGenerationService, RandomSampleScenarioGener
 builder.Services.AddSingleton<IGenerationService, ScenarioGeneratorRouter>();
 
 builder.Services.AddSingleton<IScenarioFormatter, ScenarioFormatter>();
-builder.Services.AddSingleton<IScenarioExporter, CsvScenarioExporter>();
 
 builder.Services.AddCors(options =>
 {

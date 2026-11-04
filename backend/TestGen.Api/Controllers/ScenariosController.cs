@@ -14,20 +14,17 @@ public sealed class ScenariosController : ControllerBase
     private readonly IGenerationService _generation;
     private readonly IScenarioFormatter _formatter;
     private readonly IProfileService _profiles;
-    private readonly IScenarioExporter _exporter;
     private readonly ILogger<ScenariosController> _logger;
 
     public ScenariosController(
         IGenerationService generation,
         IScenarioFormatter formatter,
         IProfileService profiles,
-        IScenarioExporter exporter,
         ILogger<ScenariosController> logger)
     {
         _generation = generation;
         _formatter  = formatter;
         _profiles   = profiles;
-        _exporter   = exporter;
         _logger     = logger;
     }
 
@@ -76,12 +73,6 @@ public sealed class ScenariosController : ControllerBase
             return File(bytes, "application/json", $"scenarios-{timestamp}.json");
         }
 
-        if (dto.Format.Equals("csv", StringComparison.OrdinalIgnoreCase))
-        {
-            var bytes = _exporter.ExportAsCsv(dto.Scenarios);
-            return File(bytes, "text/csv", $"scenarios-{timestamp}.csv");
-        }
-
         return Ok(new GenerateResponseDto
         {
             Issues = new[]
@@ -91,7 +82,7 @@ public sealed class ScenariosController : ControllerBase
                     Severity = "error",
                     Code     = "UNSUPPORTED_EXPORT_FORMAT",
                     Field    = "format",
-                    Message  = $"Format '{dto.Format}' is not supported. Use 'json' or 'csv'."
+                    Message  = $"Format '{dto.Format}' is not supported. Use 'json'."
                 }
             }
         });
