@@ -38,3 +38,7 @@ export function getProfiles() {
 export function generate(data) {
   return request('POST', '/scenarios/generate', data);
 }
+
+export function exportScenarios(scenarios, format) {
+  return request('POST', '/scenarios/export', { scenarios, format });
+}

@@ -421,6 +421,14 @@ function checkSweep(s, issues) {
         message: `Sweep "${name}" (gaussian) needs both mean and std.`,
       });
     }
+    if (['random_uniform', 'gaussian', 'latin_hypercube'].includes(t) && !need('count')
+        && !(Number.isInteger(Number(cfg.count)) && Number(cfg.count) >= 1)) {
+      issues.push({
+        code: 'SWEEP_COUNT_INVALID', severity: 'error',
+        field: `sweep_parameters.${name}.count`,
+        message: `Sweep "${name}": "count" must be a whole number of at least 1.`,
+      });
+    }
     if (t === 'enum_list' && (!Array.isArray(cfg.values) || cfg.values.length === 0)) {
       issues.push({
         code: 'SWEEP_ENUM_EMPTY', severity: 'error',
@@ -466,8 +474,10 @@ function estimateSweepSize(cfg) {
     }
     case 'random_uniform':
     case 'gaussian':
-    case 'latin_hypercube':
-      return 10;
+    case 'latin_hypercube': {
+      const c = Number(cfg.count);
+      return Number.isInteger(c) && c >= 1 ? c : 5;
+    }
     default: return 1;
   }
 }

@@ -5,6 +5,7 @@ import { toggle as togglePreview } from './json-preview.js';
 import { showIssues, clearIssues, clearFieldErrors } from './validation-panel.js';
 import { showResults, hideResults } from './results-panel.js';
 import { runClientValidation } from '../utils/client-validation.js';
+import { STATE_TO_BACKEND } from '../utils/profile-map.js';
 
 // applies one or more suggested fix objects to state
 function applySuggestedFix(fix) {
@@ -23,7 +24,9 @@ function buildGenerateBody() {
   return {
     profileId: document.getElementById('profile-select')?.value || null,
     overrides: flattenStateToOverrides(),
-    sweepParameters: s.sweep_parameters,
+    sweepParameters: Object.fromEntries(
+      Object.entries(s.sweep_parameters || {}).map(([k, v]) => [STATE_TO_BACKEND[k] || k, v])
+    ),
     strategy: s.combinatorial_strategy,
     maxScenarios: s.max_generated_scenarios
 

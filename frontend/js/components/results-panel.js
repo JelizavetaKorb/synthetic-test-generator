@@ -1,4 +1,16 @@
 import { createElement } from '../utils/dom.js';
+import { exportScenarios } from '../api.js';
+
+function saveFile(content, type, filename) {
+  const url = URL.createObjectURL(new Blob([content], { type }));
+  const a = document.createElement('a'); a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function flash(btn, text, original) {
+  btn.textContent = text;
+  setTimeout(() => { btn.textContent = original; }, 2000);
+}
 
 export function render(container) {
   const panel = createElement('div', { id: 'results-panel', class: 'results-panel hidden' });
@@ -37,23 +49,27 @@ export function showResults(response, scenarioName) {
   const actions = createElement('div', { class: 'results-actions' });
   const backBtn = createElement('button', { class: 'btn btn-primary' }, ['Edit Parameters']);
   backBtn.addEventListener('click', hideResults);
+  const name = (scenarioName && scenarioName.trim()) ? scenarioName.trim() : 'scenarios';
   const downloadBtn = createElement('button', { class: 'btn' }, ['Download JSON']);
-  downloadBtn.addEventListener('click', () => {
-    const name = (scenarioName && scenarioName.trim()) ? scenarioName.trim() : 'scenarios';
-    const blob = new Blob([jsonStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = `${name}.json`; a.click();
-    URL.revokeObjectURL(url);
+  downloadBtn.addEventListener('click', () => saveFile(jsonStr, 'application/json', `${name}.json`));
+  const csvBtn = createElement('button', { class: 'btn' }, ['Download CSV']);
+  csvBtn.addEventListener('click', async () => {
+    csvBtn.disabled = true;
+    try {
+      saveFile(await exportScenarios(response.scenarios, 'csv'), 'text/csv', `${name}.csv`);
+    } catch {
+      flash(csvBtn, 'CSV export failed', 'Download CSV');
+    } finally {
+      csvBtn.disabled = false;
+    }
   });
   const copyBtn = createElement('button', { class: 'btn' }, ['Copy to Clipboard']);
   copyBtn.addEventListener('click', () => {
-    navigator.clipboard.writeText(jsonStr).then(() => {
-      copyBtn.textContent = 'Copied';
-      setTimeout(() => { copyBtn.textContent = 'Copy to Clipboard'; }, 2000);
-    });
+    navigator.clipboard.writeText(jsonStr).then(() => flash(copyBtn, 'Copied', 'Copy to Clipboard'));
   });
   actions.appendChild(backBtn);
   actions.appendChild(downloadBtn);
+  actions.appendChild(csvBtn);
   actions.appendChild(copyBtn);
   panel.appendChild(actions);
 }

@@ -49,7 +49,6 @@ export const FIELD_LABELS = {
 
   'combinatorial_strategy': 'Combinatorial strategy',
   'max_generated_scenarios': 'Max generated scenarios',
-  'selection_strategy': 'Selection strategy',
 
   'reporting.log_level': 'Log level',
   'reporting.telemetry_frequency_hz': 'Telemetry frequency (Hz)',

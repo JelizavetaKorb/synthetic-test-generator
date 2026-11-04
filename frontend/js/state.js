@@ -69,11 +69,6 @@ function createDefaultState() {
     sweep_parameters: {},
     combinatorial_strategy: "pairwise",
     max_generated_scenarios: 100,
-    selection_strategy: "all",
-    search_algorithm: {
-      name: "none",
-      params: {}
-    },
     reporting: {
       log_level: "INFO",
       signals_to_record: [],
