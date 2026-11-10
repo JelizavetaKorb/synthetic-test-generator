@@ -123,8 +123,18 @@ public sealed class GeneratorPipeline
         if (spec.From is null || spec.To is null || spec.Step is null)
             return (null, SweepError(key, "SWEEP_MISSING_RANGE",
                 $"Sweep '{key}': linear_range requires 'from', 'to', and 'step'."));
+        if (spec.Step.Value <= 0)
+            return (null, SweepError(key, "INVALID_SWEEP_SPEC",
+                $"Sweep '{key}': linear_range requires 'step' > 0 (got {spec.Step.Value})."));
+        if (InvertedRange(key, spec) is { } inverted) return (null, inverted);
         return (LinearRange(spec.From.Value, spec.To.Value, spec.Step.Value), null);
     }
+
+    private static ValidationIssue? InvertedRange(string key, SweepSpec spec) =>
+        spec.From!.Value > spec.To!.Value
+            ? SweepError(key, "INVALID_SWEEP_SPEC",
+                $"Sweep '{key}': 'from' ({spec.From.Value}) must not be greater than 'to' ({spec.To.Value}).")
+            : null;
 
     private static (object[]?, ValidationIssue?) ExpandGeometricRange(string key, SweepSpec spec)
     {
@@ -134,6 +144,7 @@ public sealed class GeneratorPipeline
         if (spec.From.Value <= 0 || spec.Step.Value <= 1)
             return (null, SweepError(key, "INVALID_SWEEP_SPEC",
                 $"Sweep '{key}': geometric_range requires 'from' > 0 and 'step' > 1."));
+        if (InvertedRange(key, spec) is { } inverted) return (null, inverted);
         return (GeometricRange(spec.From.Value, spec.To.Value, spec.Step.Value), null);
     }
 

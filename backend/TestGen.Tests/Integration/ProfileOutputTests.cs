@@ -47,7 +47,7 @@ public sealed class ProfileOutputTests : IClassFixture<WebApplicationFactory<Pro
             $"profile '{profileId}' should produce a scenario; issues: {result.GetProperty("issues")}");
 
         var scenario = JsonNode.Parse(result.GetProperty("scenarios")[0].GetRawText());
-        var eval = Schema.Evaluate(scenario, new EvaluationOptions { OutputFormat = OutputFormat.List });
+        var eval = Schema.Evaluate(scenario, new EvaluationOptions { OutputFormat = OutputFormat.List, RequireFormatValidation = true });
         var failures = (eval.Details ?? Array.Empty<EvaluationResults>())
             .Where(d => !d.IsValid && d.Errors is { Count: > 0 })
             .Select(d => $"{d.InstanceLocation}: {string.Join("; ", d.Errors!.Values)}");

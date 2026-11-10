@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentAssertions;
 using TestGen.Core.Models;
 using TestGen.Core.Validation.Safety;
@@ -54,5 +55,17 @@ public sealed class AsilRequiresHazardRuleTests
             .Build();
 
         Rule.Check(s, AnyProfile).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Check_AsilC_CriticalAssertionFromProfileArray_NoIssue()
+    {
+        var scenario = new ScenarioBuilder()
+            .WithParameter("asilLevel",  "C")
+            .WithParameter("hazardId",   "HAZ-001")
+            .WithParameter("assertions", JsonDocument.Parse("""[{"id":"a","severity":"critical"}]""").RootElement)
+            .Build();
+
+        Rule.Check(scenario, AnyProfile).Should().BeEmpty();
     }
 }

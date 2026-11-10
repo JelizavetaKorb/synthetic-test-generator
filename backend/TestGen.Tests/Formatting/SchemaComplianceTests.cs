@@ -25,7 +25,7 @@ public sealed class SchemaComplianceTests
     private static void AssertValid(JsonDocument doc)
     {
         var node    = JsonNode.Parse(doc.RootElement.GetRawText());
-        var opts    = new EvaluationOptions { OutputFormat = OutputFormat.List };
+        var opts    = new EvaluationOptions { OutputFormat = OutputFormat.List, RequireFormatValidation = true };
         var result  = Schema.Evaluate(node, opts);
 
         var failures = new List<string>();
@@ -65,6 +65,31 @@ public sealed class SchemaComplianceTests
 
         using var doc = Sut.FormatOne(s, null, Req());
         AssertValid(doc);
+    }
+
+    [Fact]
+    public void Output_HasUuidScenarioId_AndIsoCreatedAt()
+    {
+        var s = new ScenarioBuilder().WithParameter("ecuId", "ENGINE-ECU-001").Build();
+
+        using var doc = Sut.FormatOne(s, null, Req());
+        var root = doc.RootElement;
+
+        Guid.TryParse(root.GetProperty("scenario_id").GetString(), out _).Should().BeTrue();
+        DateTimeOffset.TryParseExact(root.GetProperty("created_at").GetString(), "o",
+            System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.RoundtripKind, out _).Should().BeTrue();
+    }
+
+    [Fact]
+    public void CreatedAt_NotIsoDate_FailsSchema()
+    {
+        var node = JsonNode.Parse("""
+            {"scenario_id":"x","name":"n","ecu_id":"E","target_execution":"SIL","created_at":"yesterday"}
+            """);
+
+        Schema.Evaluate(node, new EvaluationOptions { RequireFormatValidation = true })
+            .IsValid.Should().BeFalse();
     }
 
     [Fact]

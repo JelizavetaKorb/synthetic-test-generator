@@ -33,6 +33,9 @@
     "bus.bitrateKbps": 500,
     "bus.busLoadPct": 25,
     "bus.messageJitterMs": 2,
+    "messageDefs": [
+      { "id": "MSG_ENGINE_STATUS", "name": "ENGINE_STATUS", "period_ms": 10 }
+    ],
 
     "signalList": [
       {

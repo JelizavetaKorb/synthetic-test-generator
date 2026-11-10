@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.RegularExpressions;
 using TestGen.Core.Models;
 using TestGen.Core.Services;
 
@@ -11,15 +9,6 @@ public sealed class BrakeMissingWheelSpeedRule : IValidationRule
 
     private const string WheelSpeedToken   = "wheel_speed";
     private const string WheelSpeedMessage = "MSG_WHEEL_SPEED";
-
-    private static readonly Regex AssertionExprPattern =
-        new(@"^assertions\[\d+\]\.expr$", RegexOptions.Compiled);
-
-    private static readonly Regex MessageIdNamePattern =
-        new(@"^messageDefs\[\d+\]\.(id|name)$", RegexOptions.Compiled);
-
-    private static readonly Regex SignalNamePattern =
-        new(@"^signalList\[\d+\]\.name$", RegexOptions.Compiled);
 
     private readonly IEcuCatalogService _catalog;
 
@@ -51,64 +40,20 @@ public sealed class BrakeMissingWheelSpeedRule : IValidationRule
         };
     }
 
-    private static bool AnyAssertionReferencesWheelSpeed(IDictionary<string, object> p)
-    {
-        foreach (var key in p.Keys)
-        {
-            if (!AssertionExprPattern.IsMatch(key)) continue;
-            if (ParameterAccessor.TryGetString(p, key, out var expr) &&
-                expr.Contains(WheelSpeedToken, StringComparison.OrdinalIgnoreCase))
-                return true;
-        }
-        return false;
-    }
+    private static bool AnyAssertionReferencesWheelSpeed(IDictionary<string, object> p) =>
+        ParameterAccessor.GetItems(p, "assertions").Any(static a =>
+            ParameterAccessor.TryGetString(a.Fields, "expr", out var expr) &&
+            expr.Contains(WheelSpeedToken, StringComparison.OrdinalIgnoreCase));
 
-    private static bool BusOrSignalsDeclareWheelSpeed(IDictionary<string, object> p)
-    {
-        foreach (var key in p.Keys)
-        {
-            if (MessageIdNamePattern.IsMatch(key) &&
-                ParameterAccessor.TryGetString(p, key, out var v) &&
-                (v.Equals(WheelSpeedMessage, StringComparison.OrdinalIgnoreCase) ||
-                 v.Contains(WheelSpeedToken, StringComparison.OrdinalIgnoreCase)))
-                return true;
+    private static bool BusOrSignalsDeclareWheelSpeed(IDictionary<string, object> p) =>
+        ParameterAccessor.GetItems(p, "messageDefs").Any(static m =>
+            IsWheelSpeed(m.Fields, "id", allowMessageName: true) ||
+            IsWheelSpeed(m.Fields, "name", allowMessageName: true)) ||
+        ParameterAccessor.GetItems(p, "signalList").Any(static s =>
+            IsWheelSpeed(s.Fields, "name", allowMessageName: false));
 
-            if (SignalNamePattern.IsMatch(key) &&
-                ParameterAccessor.TryGetString(p, key, out var s) &&
-                s.Contains(WheelSpeedToken, StringComparison.OrdinalIgnoreCase))
-                return true;
-        }
-
-        if (p.TryGetValue("messageDefs", out var msgRaw) && msgRaw is JsonElement msgEl &&
-            msgEl.ValueKind == JsonValueKind.Array)
-        {
-            foreach (var item in msgEl.EnumerateArray())
-            {
-                if (item.ValueKind != JsonValueKind.Object) continue;
-                if (HasMatchingProp(item, "id")   ||
-                    HasMatchingProp(item, "name")) return true;
-            }
-        }
-
-        if (p.TryGetValue("signalList", out var sigRaw) && sigRaw is JsonElement sigEl &&
-            sigEl.ValueKind == JsonValueKind.Array)
-        {
-            foreach (var item in sigEl.EnumerateArray())
-            {
-                if (item.ValueKind != JsonValueKind.Object) continue;
-                if (item.TryGetProperty("name", out var n) &&
-                    n.ValueKind == JsonValueKind.String &&
-                    n.GetString()!.Contains(WheelSpeedToken, StringComparison.OrdinalIgnoreCase))
-                    return true;
-            }
-        }
-
-        return false;
-
-        static bool HasMatchingProp(JsonElement item, string prop) =>
-            item.TryGetProperty(prop, out var el) &&
-            el.ValueKind == JsonValueKind.String &&
-            (el.GetString()!.Equals(WheelSpeedMessage, StringComparison.OrdinalIgnoreCase) ||
-             el.GetString()!.Contains(WheelSpeedToken, StringComparison.OrdinalIgnoreCase));
-    }
+    private static bool IsWheelSpeed(IDictionary<string, object> item, string key, bool allowMessageName) =>
+        ParameterAccessor.TryGetString(item, key, out var value) &&
+        ((allowMessageName && value.Equals(WheelSpeedMessage, StringComparison.OrdinalIgnoreCase)) ||
+         value.Contains(WheelSpeedToken, StringComparison.OrdinalIgnoreCase));
 }

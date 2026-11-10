@@ -8,49 +8,41 @@ namespace TestGen.Tests.Generation;
 public sealed class SweepEvaluationTests
 {
     [Fact]
-    public void Sweep_Fixed_ReturnsSingleValue()
+    public void Sweep_Fixed_FromValues_ReturnsFirstValueOnly()
     {
-        var result = GeneratorPipeline.LinearRange(5.0, 5.0, 1.0);
+        var values = Prepare(new SweepSpec { Type = "fixed", Values = new object[] { 7.5, 9.0 } }).Sweeps.Single().Values;
 
-        result.Should().HaveCount(1);
-        result[0].Should().Be(5.0);
+        values.Should().Equal(7.5);
     }
 
     [Fact]
-    public void Sweep_EnumList_ReturnsAllValues()
+    public void Sweep_Fixed_FromFrom_ReturnsThatValue()
     {
-        var values = new object[] { -30, -20, -10, 0, 10 };
-
-        values.Should().HaveCount(5);
+        Values(new SweepSpec { Type = "fixed", From = 5.0 }).Should().Equal(5.0);
     }
 
     [Fact]
-    public void Sweep_RandomUniform_ReturnsCorrectCount()
+    public void Sweep_Fixed_WithoutValueOrFrom_ReturnsError()
     {
-        var count  = 7;
-        var random = new Random(42);
-        var vals   = new object[count];
-        for (var i = 0; i < count; i++)
-            vals[i] = Math.Round(10.0 + random.NextDouble() * 4.0, 6);
-
-        vals.Should().HaveCount(7);
-        foreach (var v in vals.Cast<double>())
-            v.Should().BeGreaterThanOrEqualTo(10.0).And.BeLessThanOrEqualTo(14.0);
+        Prepare(new SweepSpec { Type = "fixed" }).Issues
+            .Should().ContainSingle(i => i.Code == "INVALID_SWEEP_SPEC");
     }
 
     [Fact]
-    public void Sweep_RandomUniform_Deterministic()
+    public void Sweep_EnumList_ReturnsAllValues_AndParsesNumericStrings()
     {
-        double[] Run()
-        {
-            var random = new Random(42);
-            var vals   = new double[5];
-            for (var i = 0; i < 5; i++)
-                vals[i] = Math.Round(10.0 + random.NextDouble() * 4.0, 6);
-            return vals;
-        }
+        var values = Prepare(new SweepSpec { Type = "enum_list", Values = new object[] { "-30", "12.5", "OFF", 10 } })
+            .Sweeps.Single().Values;
 
-        Run().Should().Equal(Run());
+        values.Should().Equal(-30L, 12.5, "OFF", 10);
+    }
+
+    [Fact]
+    public void Sweep_RandomUniform_IsDeterministic()
+    {
+        var spec = new SweepSpec { Type = "random_uniform", From = 10, To = 14, Count = 5 };
+
+        Values(spec).Should().Equal(Values(spec));
     }
 
     [Fact]

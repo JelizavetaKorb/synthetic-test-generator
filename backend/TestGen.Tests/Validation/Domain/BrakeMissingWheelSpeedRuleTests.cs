@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentAssertions;
 using TestGen.Core.Models;
 using TestGen.Core.Validation.Domain;
@@ -89,5 +90,17 @@ public sealed class BrakeMissingWheelSpeedRuleTests
             .Build();
 
         rule.Check(s, AnyProfile).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void BrakeEcu_WheelSpeedAssertionFromProfileArray_NoSource_Error()
+    {
+        var s = new ScenarioBuilder()
+            .WithParameter("ecuId",      "BRAKE-ECU-001")
+            .WithParameter("assertions", JsonDocument.Parse("""[{"expr":"wheel_speed_fl > 0"}]""").RootElement)
+            .Build();
+
+        Build(BrakeEcu).Check(s, AnyProfile).Should().ContainSingle(i =>
+            i.Code == BrakeMissingWheelSpeedRule.RuleCode);
     }
 }

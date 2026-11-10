@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentAssertions;
 using TestGen.Core.Models;
 using TestGen.Core.Validation.Semantic;
@@ -55,5 +56,27 @@ public sealed class FaultTargetReferenceRuleTests
             .Build();
 
         Rule.Check(s, AnyProfile).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Check_FaultFromProfileArray_UnknownTarget_ReturnsError()
+    {
+        var scenario = new ScenarioBuilder()
+            .WithParameter("signalList", JsonDocument.Parse("""[{"name":"engine_status"}]""").RootElement)
+            .WithParameter("faults",     JsonDocument.Parse("""[{"target":"MSG_ENGINE_STATUS"}]""").RootElement)
+            .Build();
+
+        Rule.Check(scenario, AnyProfile).Should().ContainSingle(i => i.Field == "faults[0].target");
+    }
+
+    [Fact]
+    public void Check_FaultFromProfileArray_TargetsDeclaredMessage_NoIssue()
+    {
+        var scenario = new ScenarioBuilder()
+            .WithParameter("messageDefs", JsonDocument.Parse("""[{"id":"MSG_ENGINE_STATUS","name":"ENGINE_STATUS"}]""").RootElement)
+            .WithParameter("faults",      JsonDocument.Parse("""[{"target":"MSG_ENGINE_STATUS"}]""").RootElement)
+            .Build();
+
+        Rule.Check(scenario, AnyProfile).Should().BeEmpty();
     }
 }

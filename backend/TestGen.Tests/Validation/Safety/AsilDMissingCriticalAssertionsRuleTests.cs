@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentAssertions;
 using TestGen.Core.Models;
 using TestGen.Core.Validation.Safety;
@@ -77,5 +78,16 @@ public sealed class AsilDMissingCriticalAssertionsRuleTests
         var issues = Rule.Check(scenario, AnyProfile);
 
         issues.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Check_CriticalAssertionFromProfileArray_NoIssue()
+    {
+        var scenario = new ScenarioBuilder()
+            .WithParameter("asilLevel",  "D")
+            .WithParameter("assertions", JsonDocument.Parse("""[{"id":"a","severity":"critical"}]""").RootElement)
+            .Build();
+
+        Rule.Check(scenario, AnyProfile).Should().BeEmpty();
     }
 }

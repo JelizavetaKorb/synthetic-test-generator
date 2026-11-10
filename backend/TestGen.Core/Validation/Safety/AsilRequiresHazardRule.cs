@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using TestGen.Core.Models;
 
 namespace TestGen.Core.Validation.Safety;
@@ -6,9 +5,6 @@ namespace TestGen.Core.Validation.Safety;
 public sealed class AsilRequiresHazardRule : IValidationRule
 {
     public const string RuleCode = "ASIL_REQUIRES_HAZARD";
-
-    private static readonly Regex SeverityPattern =
-        new(@"^assertions\[\d+\]\.severity$", RegexOptions.Compiled);
 
     public IEnumerable<ValidationIssue> Check(Scenario scenario, Profile profile)
     {
@@ -30,17 +26,7 @@ public sealed class AsilRequiresHazardRule : IValidationRule
                 Message  = $"ASIL {asil} scenarios must reference a hazard_id."
             };
 
-        var hasCritical = false;
-        foreach (var key in p.Keys)
-        {
-            if (!SeverityPattern.IsMatch(key)) continue;
-            if (ParameterAccessor.TryGetString(p, key, out var sev) &&
-                sev.Equals("critical", StringComparison.OrdinalIgnoreCase))
-            {
-                hasCritical = true;
-                break;
-            }
-        }
+        var hasCritical = ParameterAccessor.AnyItemHas(p, "assertions", "severity", "critical");
 
         if (asil.Equals("C", StringComparison.OrdinalIgnoreCase) && !hasCritical)
             yield return new ValidationIssue

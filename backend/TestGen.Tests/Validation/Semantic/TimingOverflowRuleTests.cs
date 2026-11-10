@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentAssertions;
 using TestGen.Core.Models;
 using TestGen.Core.Validation.Semantic;
@@ -84,5 +85,16 @@ public sealed class TimingOverflowRuleTests
         var issues = Rule.Check(scenario, AnyProfile);
 
         issues.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Check_FaultFromProfileArray_EndsAfterTest_ReturnsError()
+    {
+        var scenario = new ScenarioBuilder()
+            .WithParameter("testDurationMs", 1000.0)
+            .WithParameter("faults", JsonDocument.Parse("""[{"startTimeMs":800,"durationMs":300}]""").RootElement)
+            .Build();
+
+        Rule.Check(scenario, AnyProfile).Should().ContainSingle(i => i.Field == "faults[0].durationMs");
     }
 }

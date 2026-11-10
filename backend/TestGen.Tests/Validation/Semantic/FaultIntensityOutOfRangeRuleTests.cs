@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentAssertions;
 using TestGen.Core.Models;
 using TestGen.Core.Validation.Semantic;
@@ -63,5 +64,15 @@ public sealed class FaultIntensityOutOfRangeRuleTests
         var issues = Rule.Check(scenario, AnyProfile);
 
         issues.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Check_FaultFromProfileArray_IntensityOutOfRange_ReturnsError()
+    {
+        var scenario = new ScenarioBuilder()
+            .WithParameter("faults", JsonDocument.Parse("""[{"faultId":"f1","intensity":1.5}]""").RootElement)
+            .Build();
+
+        Rule.Check(scenario, AnyProfile).Should().ContainSingle(i => i.Field == "faults[0].intensity");
     }
 }

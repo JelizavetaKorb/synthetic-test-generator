@@ -5,7 +5,6 @@ using TestGen.Core.Generation;
 using TestGen.Core.Services;
 using TestGen.Core.Validation;
 using TestGen.Core.Validation.Domain;
-using TestGen.Core.Validation.Report;
 using TestGen.Core.Validation.Safety;
 using TestGen.Core.Validation.Semantic;
 using TestGen.Core.Validation.Syntactic;
@@ -29,7 +28,6 @@ builder.Services.AddSingleton<IProfileService,    FileProfileService>();
 builder.Services.AddSingleton<IEcuCatalogService, FileEcuCatalogService>();
 
 builder.Services.AddSingleton<IScenarioValidator, LayeredScenarioValidator>();
-builder.Services.AddSingleton<IScenarioReportValidator, ScenarioReportValidator>();
 
 builder.Services.AddSingleton<IValidationRule, LockedParameterOverriddenRule>();
 builder.Services.AddSingleton<IValidationRule, RequiredFieldsRule>();
@@ -54,6 +52,9 @@ builder.Services.AddSingleton<IValidationRule, BmsOvervoltageRule>();
 builder.Services.AddSingleton<IValidationRule, AsilDMissingCriticalAssertionsRule>();
 builder.Services.AddSingleton<IValidationRule, AsilTargetExecutionRule>();
 builder.Services.AddSingleton<IValidationRule, AsilRequiresHazardRule>();
+builder.Services.AddSingleton<IValidationRule, AsilDFormalAssertionRule>();
+builder.Services.AddSingleton<IValidationRule, ActuatorStuckPositionRule>();
+builder.Services.AddSingleton<IValidationRule, OverlappingFaultsRule>();
 
 builder.Services.AddSingleton<GeneratorPipeline>();
 builder.Services.AddKeyedSingleton<IGenerationService, CartesianScenarioGenerator>("cartesian");

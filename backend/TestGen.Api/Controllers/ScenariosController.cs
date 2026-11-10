@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Text;
-using System.Text.Json;
 using TestGen.Api.Contracts;
 using TestGen.Core.Formatting;
 using TestGen.Core.Services;
@@ -57,34 +55,6 @@ public sealed class ScenariosController : ControllerBase
             GeneratedCount = scenarios.Length,
             Scenarios      = scenarios,
             Issues         = issues
-        });
-    }
-
-    [HttpPost("export")]
-    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
-    public IActionResult Export([FromBody] ExportRequestDto dto)
-    {
-        var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-
-        if (dto.Format.Equals("json", StringComparison.OrdinalIgnoreCase))
-        {
-            var json  = JsonSerializer.Serialize(dto.Scenarios);
-            var bytes = Encoding.UTF8.GetBytes(json);
-            return File(bytes, "application/json", $"scenarios-{timestamp}.json");
-        }
-
-        return Ok(new GenerateResponseDto
-        {
-            Issues = new[]
-            {
-                new ValidationIssueDto
-                {
-                    Severity = "error",
-                    Code     = "UNSUPPORTED_EXPORT_FORMAT",
-                    Field    = "format",
-                    Message  = $"Format '{dto.Format}' is not supported. Use 'json'."
-                }
-            }
         });
     }
 }

@@ -5,7 +5,7 @@ import { toggle as togglePreview } from './json-preview.js';
 import { showIssues, clearIssues, clearFieldErrors } from './validation-panel.js';
 import { showResults, hideResults } from './results-panel.js';
 import { runClientValidation } from '../utils/client-validation.js';
-import { STATE_TO_BACKEND } from '../utils/profile-map.js';
+import { STATE_TO_BACKEND, mapIssueFieldsToState } from '../utils/profile-map.js';
 
 // applies one or more suggested fix objects to state
 function applySuggestedFix(fix) {
@@ -65,7 +65,7 @@ async function handleGenerate(btn, allowWarnings) {
 
   try {
     const result = await generate(buildGenerateBody());
-    const issues = result.issues || [];
+    const issues = mapIssueFieldsToState(result.issues || []);
     const errors = issues.filter(i => i.severity === 'error');
     const warnings = issues.filter(i => i.severity === 'warning');
     if (errors.length > 0) {
@@ -77,7 +77,7 @@ async function handleGenerate(btn, allowWarnings) {
     }
   } catch (e) {
     const issues = e.issues && e.issues.length
-      ? e.issues
+      ? mapIssueFieldsToState(e.issues)
       : [{
           severity: 'error',
           field: '',

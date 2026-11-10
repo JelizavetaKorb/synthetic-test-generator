@@ -53,3 +53,35 @@ export const STATE_TO_BACKEND = {
 export const BACKEND_TO_STATE = Object.fromEntries(
   Object.entries(STATE_TO_BACKEND).map(([statePath, backendKey]) => [backendKey, statePath])
 );
+
+const BACKEND_LIST_TO_STATE = {
+  faults: 'faults',
+  assertions: 'assertions',
+  signalList: 'signal_list',
+  messageDefs: 'bus_config.message_defs',
+};
+
+const SWEEP_ISSUE_CODES = new Set(['INVALID_SWEEP_SPEC', 'SWEEP_MISSING_RANGE', 'UNSUPPORTED_SWEEP_TYPE']);
+
+const BACKEND_FIELD_ALIASES = { sweepParameters: 'combinatorial_strategy' };
+
+function camelToSnake(s) {
+  return s.replace(/[A-Z]/g, c => '_' + c.toLowerCase());
+}
+
+export function backendFieldToState(field, code) {
+  if (!field) return field;
+  if (SWEEP_ISSUE_CODES.has(code)) return `sweep_parameters.${BACKEND_TO_STATE[field] ?? field}`;
+  if (BACKEND_FIELD_ALIASES[field]) return BACKEND_FIELD_ALIASES[field];
+  if (BACKEND_TO_STATE[field]) return BACKEND_TO_STATE[field];
+  const item = field.match(/^(\w+)\[(\d+)\]\.(.+)$/);
+  if (item && BACKEND_LIST_TO_STATE[item[1]]) {
+    const rest = item[3].split('.').map(camelToSnake).join('.');
+    return `${BACKEND_LIST_TO_STATE[item[1]]}.${item[2]}.${rest}`;
+  }
+  return field;
+}
+
+export function mapIssueFieldsToState(issues) {
+  return issues.map(issue => ({ ...issue, field: backendFieldToState(issue.field, issue.code) }));
+}
