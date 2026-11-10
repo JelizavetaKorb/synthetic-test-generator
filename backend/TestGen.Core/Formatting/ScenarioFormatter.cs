@@ -8,7 +8,6 @@ namespace TestGen.Core.Formatting;
 public interface IScenarioFormatter
 {
     JsonDocument FormatOne(Scenario scenario, Profile? profile, GenerateRequest request);
-    JsonDocument FormatMany(IReadOnlyList<Scenario> scenarios, Profile? profile, GenerateRequest request);
 }
 
 public sealed class ScenarioFormatter : IScenarioFormatter
@@ -338,20 +337,6 @@ public sealed class ScenarioFormatter : IScenarioFormatter
         }
 
         return JsonSerializer.SerializeToDocument(root);
-    }
-
-    public JsonDocument FormatMany(
-        IReadOnlyList<Scenario> scenarios,
-        Profile? profile,
-        GenerateRequest request)
-    {
-        var array = new JsonArray();
-        foreach (var s in scenarios)
-        {
-            using var doc = FormatOne(s, profile, request);
-            array.Add(doc.RootElement.Clone());
-        }
-        return JsonSerializer.SerializeToDocument(array);
     }
 
     private static Dictionary<string, object> NormalizeBracketKeys(
