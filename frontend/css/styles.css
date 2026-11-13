@@ -920,6 +920,27 @@ textarea.field-has-error {
   margin: 2px 0;
 }
 
+.results-errors {
+  background: var(--danger-soft);
+  border: 1px solid var(--danger);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border-radius: var(--radius);
+}
+
+.results-error-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--danger);
+  margin: 0 0 4px;
+}
+
+.results-error {
+  font-size: 13px;
+  color: var(--danger);
+  margin: 2px 0;
+}
+
 .results-json {
   font-family: var(--font-mono);
   font-size: 12.5px;

@@ -429,6 +429,13 @@ function checkSweep(s, issues) {
         message: `Sweep "${name}": "count" must be a whole number of at least 1.`,
       });
     }
+    if (t === 'fixed' && (need('value') || String(cfg.value).trim() === '')) {
+      issues.push({
+        code: 'SWEEP_FIXED_REQUIRED', severity: 'error',
+        field: `sweep_parameters.${name}.value`,
+        message: `Sweep "${name}" (fixed) needs a value.`,
+      });
+    }
     if (t === 'enum_list' && (!Array.isArray(cfg.values) || cfg.values.length === 0)) {
       issues.push({
         code: 'SWEEP_ENUM_EMPTY', severity: 'error',

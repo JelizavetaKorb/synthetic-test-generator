@@ -18,6 +18,20 @@ function applySuggestedFix(fix) {
   });
 }
 
+// turns numeric text into a number, other values pass through unchanged
+function coerceNumericText(value) {
+  if (typeof value !== 'string') return value;
+  const trimmed = value.trim();
+  return trimmed !== '' && Number.isFinite(Number(trimmed)) ? Number(trimmed) : value;
+}
+
+// rewrites a fixed sweep's ui value field into the values array the backend reads
+function toBackendSweep(cfg) {
+  if (!cfg || cfg.type !== 'fixed') return cfg;
+  const { value, ...rest } = cfg;
+  return { ...rest, values: [coerceNumericText(value)] };
+}
+
 // assembles the POST body from current state for the generate endpoint
 function buildGenerateBody() {
   const s = getFullState();
@@ -25,7 +39,7 @@ function buildGenerateBody() {
     profileId: document.getElementById('profile-select')?.value || null,
     overrides: flattenStateToOverrides(),
     sweepParameters: Object.fromEntries(
-      Object.entries(s.sweep_parameters || {}).map(([k, v]) => [STATE_TO_BACKEND[k] || k, v])
+      Object.entries(s.sweep_parameters || {}).map(([k, v]) => [STATE_TO_BACKEND[k] || k, toBackendSweep(v)])
     ),
     strategy: s.combinatorial_strategy,
     maxScenarios: s.max_generated_scenarios
@@ -68,7 +82,10 @@ async function handleGenerate(btn, allowWarnings) {
     const issues = mapIssueFieldsToState(result.issues || []);
     const errors = issues.filter(i => i.severity === 'error');
     const warnings = issues.filter(i => i.severity === 'warning');
-    if (errors.length > 0) {
+    // partial success: show valid scenarios and list the rejected candidates in the results panel
+    if (errors.length > 0 && result.generatedCount > 0) {
+      showResults(result, getFullState().name);
+    } else if (errors.length > 0) {
       showIssues(issues, { onApplyFix: applySuggestedFix, onRetry: () => handleGenerate(btn, true) });
     } else if (warnings.length > 0 && !allowWarnings) {
       showIssues(issues, { onApplyFix: applySuggestedFix, onRetry: () => handleGenerate(btn, true), hasResult: true, result });

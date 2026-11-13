@@ -41,6 +41,15 @@ export function showResults(response, scenarioName) {
     });
     panel.appendChild(warnBox);
   }
+  const errors = (response.issues || []).filter(i => i.severity === 'error');
+  if (errors.length > 0) {
+    const errBox = createElement('div', { class: 'results-errors' });
+    errBox.appendChild(createElement('p', { class: 'results-error-label' }, ['Rejected:']));
+    errors.forEach(e => {
+      errBox.appendChild(createElement('p', { class: 'results-error' }, [e.message]));
+    });
+    panel.appendChild(errBox);
+  }
   const jsonStr = JSON.stringify(response.scenarios, null, 2);
   const pre = createElement('pre', { class: 'results-json' });
   pre.textContent = jsonStr;
